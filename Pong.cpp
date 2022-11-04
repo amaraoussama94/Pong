@@ -5,7 +5,7 @@
 int main()
     {
     // Create a video mode object
-    VideoMode vm(1080, 768);
+    VideoMode vm(1024, 768);
     // Create and open a window for the game
     RenderWindow window(vm, "Pong");//, Style::Fullscreen   third  para if  you want full screen mood
     int score = 0;
@@ -17,11 +17,11 @@ int main()
     Text hud;
     // A cool retro-style font
     Font font;
-    font.loadFromFile("fonts/DS-DIGI.ttf");
+    font.loadFromFile("fonts/DS-DIGI.TTF");
     // Set the font to our retro-style
     hud.setFont(font);
     // Make it nice and big
-    hud.setCharacterSize(75);
+    hud.setCharacterSize(50);
     // Choose a color
     hud.setFillColor(Color::White);
     hud.setPosition(20, 20);
