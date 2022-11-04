@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include <SFML/Graphics.hpp>
 int main()
-{
+    {
     // Create a video mode object
     VideoMode vm(1080, 768);
     // Create and open a window for the game
@@ -28,25 +28,54 @@ int main()
     // Here is our clock for timing everything
     Clock clock;
     while (window.isOpen())
-    {
+        {
     /*
-    Handle the player input
-    ****************************
-    ****************************
-    ****************************
+    **********************************
+    ***** Handle the player input*****
+    **********************************
     */
-    /*
-    Update the bat, the ball and the HUD
-    *****************************
-    *****************************
-    *****************************
-    */
-    /*
-    Draw the bat, the ball and the HUD
-    *****************************
-    *****************************
-    *****************************
-    */
-    }
+
+        Event event;
+        while (window.pollEvent(event))
+            {
+            if (event.type == Event::Closed)
+            // Quit the game when the window is closed
+            window.close();
+            }
+        // Handle the player quitting
+        if (Keyboard::isKeyPressed(Keyboard::Escape))
+            {
+            window.close();
+            }
+        // Handle the pressing and releasing of the arrow keys
+        if (Keyboard::isKeyPressed(Keyboard::Left))
+            {
+            bat.moveLeft();
+            }
+        else
+            {
+            bat.stopLeft();
+            }
+        if (Keyboard::isKeyPressed(Keyboard::Right))
+            {
+            bat.moveRight();
+            }
+        else
+            {
+            bat.stopRight();
+            }
+        /*
+        Update the bat, the ball and the HUD
+        *****************************
+        *****************************
+        *****************************
+        */
+        /*
+        Draw the bat, the ball and the HUD
+        *****************************
+        *****************************
+        *****************************
+        */
+            }
     return 0;
-}
+    }
