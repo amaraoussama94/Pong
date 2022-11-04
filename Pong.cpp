@@ -116,6 +116,11 @@ int main()
             // Hit detected so reverse the ball and score a point
                 ball.reboundBatOrTop();
             }
+          // Handle Batt getting sides
+        if (bat.getPosition().left < 0 ||bat.getPosition().left + bat.getPosition().width> window.getSize().x)
+            {
+                ;
+            }
         /*
         **********************************************
         ****** Draw the bat, the ball and the HUD*****
