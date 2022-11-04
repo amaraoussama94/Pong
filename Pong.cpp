@@ -5,13 +5,13 @@
 int main()
 {
     // Create a video mode object
-    VideoMode vm(1920, 1080);
+    VideoMode vm(1080, 768);
     // Create and open a window for the game
     RenderWindow window(vm, "Pong", Style::Fullscreen);
     int score = 0;
     int lives = 3;
     // Create a bat at the bottom center of the screen
-    Bat bat(1920 / 2, 1080 - 20);
+    Bat bat(1080 / 2, 768 - 20);
     // We will add a ball in the next chapter
     // Create a Text object called HUD
     Text hud;
