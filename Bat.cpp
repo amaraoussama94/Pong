@@ -11,6 +11,7 @@ Bat::Bat(float startX, float startY)
 
 FloatRect Bat::getPosition()
 {
+//returns a FloatRect that is initialized with the coordinates of the four corners of the RectangleShape
     return m_Shape.getGlobalBounds();
 }
 
@@ -50,6 +51,6 @@ void Bat::update(Time dt)
     {
         m_Position.x += m_Speed * dt.asSeconds();
     }
-    
+
     m_Shape.setPosition(m_Position);
 }
