@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://github.com/amaraoussama94/Pong/blob/main/Game.png" height="150">  
+    <img src="https://github.com/amaraoussama94/Pong/blob/main/Game.png"  >  
 </p>
 <h3 align="left">How to Use: </h3>    
 
