@@ -12,8 +12,9 @@ int main()
     int score = 0;
     int lives = 3;
     // Create a bat at the bottom center of the screen
-    Bat bat(1080 / 2, 768 - 20);
-    // We will add a ball in the next chapter
+    Bat bat(1024/ 2, 768 - 20);
+    // Create a ball
+    Ball ball(1024 / 2, 0);
     // Create a Text object called HUD
     Text hud;
     // A cool retro-style font
@@ -73,7 +74,9 @@ int main()
         */
        // Update the delta time
         Time dt = clock.restart();
+        
         bat.update(dt);
+        ball.update(dt);
         // Update the HUD text
         std::stringstream ss;
         ss << "Score:" << score << " Lives:" << lives;
@@ -86,6 +89,7 @@ int main()
         window.clear();
         window.draw(hud);
         window.draw(bat.getShape());
+        window.draw(ball.getShape());
         window.display();
 
 
