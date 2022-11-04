@@ -53,6 +53,11 @@ int main()
         if (Keyboard::isKeyPressed(Keyboard::Left))
             {
             bat.moveLeft();
+                 // Handle Batt getting Leftsides
+            if (bat.getPosition().left < 0 )
+                {
+                bat.stopLeft() ;
+                }
             }
         else
             {
@@ -61,11 +66,18 @@ int main()
         if (Keyboard::isKeyPressed(Keyboard::Right))
             {
             bat.moveRight();
+                // Handle Batt getting Right sides
+            if (bat.getPosition().left + bat.getPosition().width> window.getSize().x)
+                {
+                bat.stopRight() ;
+                }
             }
         else
             {
             bat.stopRight();
             }
+          
+         
         /*
         
         **********************************************
@@ -116,11 +128,7 @@ int main()
             // Hit detected so reverse the ball and score a point
                 ball.reboundBatOrTop();
             }
-          // Handle Batt getting sides
-        if (bat.getPosition().left < 0 ||bat.getPosition().left + bat.getPosition().width> window.getSize().x)
-            {
-                ;
-            }
+
         /*
         **********************************************
         ****** Draw the bat, the ball and the HUD*****
