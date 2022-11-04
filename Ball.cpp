@@ -36,9 +36,9 @@ void Ball::reboundBatOrTop()
 
 void Ball::reboundBottom()
     {
-        m_Position.y = 0;
+        m_Position.y = 100;
         m_Position.x = 500;
-        m_DirectionY = -m_DirectionY;
+        m_DirectionY = m_DirectionY;
     }
 
 void Ball::update(Time dt)
