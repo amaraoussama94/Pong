@@ -7,7 +7,7 @@ int main()
     // Create a video mode object
     VideoMode vm(1080, 768);
     // Create and open a window for the game
-    RenderWindow window(vm, "Pong", Style::Fullscreen);
+    RenderWindow window(vm, "Pong");//, Style::Fullscreen   third  para if  you want full screen mood
     int score = 0;
     int lives = 3;
     // Create a bat at the bottom center of the screen
@@ -65,16 +65,15 @@ int main()
             bat.stopRight();
             }
         /*
-        Update the bat, the ball and the HUD
-        *****************************
-        *****************************
-        *****************************
+        
+        **********************************************
+        *****Update the bat, the ball and the HUD*****
+        **********************************************
         */
         /*
-        Draw the bat, the ball and the HUD
-        *****************************
-        *****************************
-        *****************************
+        **********************************************
+        ****** Draw the bat, the ball and the HUD*****
+        **********************************************
         */
             }
     return 0;
