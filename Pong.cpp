@@ -9,8 +9,13 @@ int main()
     VideoMode vm(1024, 768);
     // Create and open a window for the game
     RenderWindow window(vm, "Pong");//, Style::Fullscreen   third  para if  you want full screen mood
-    int score = 0;
-    int lives = 3;
+    //player 1
+    int score_1 = 0;
+    int lives_1 = 3;
+
+    // player 2
+    int score_2 = 0;
+    int lives_2 = 3;
     // Create a bat at the bottom center of the screen
     //first player 
     Bat bat_1(1024/ 2, 768 - 20);
@@ -19,17 +24,22 @@ int main()
     // Create a ball
     Ball ball(1024 / 2, 0);
     // Create a Text object called HUD
-    Text hud;
+    Text hud_1;// for player 1
+    Text hud_2;// for player 2
     // A cool retro-style font
     Font font;
     font.loadFromFile("fonts/DS-DIGI.TTF");
     // Set the font to our retro-style
-    hud.setFont(font);
+    hud_1.setFont(font);//player 1
+    hud_2.setFont(font);//player 2
     // Make it nice and big
-    hud.setCharacterSize(50);
+    hud_1.setCharacterSize(25);//player 1
+    hud_2.setCharacterSize(25);//player 1
     // Choose a color
-    hud.setFillColor(Color::White);
-    hud.setPosition(20, 20);
+    hud_1.setFillColor(Color::White);//player 1
+    hud_1.setPosition(20, 768/2);//player 1
+    hud_2.setFillColor(Color::White);//player 2
+    hud_2.setPosition(1024-200, 768/2);//player 2
     // Here is our clock for timing everything
     Clock clock;
     while (window.isOpen())
@@ -79,7 +89,33 @@ int main()
             {
             bat_1.stopRight();
             }
-          
+        // Handle the pressing and releasing of the arrow keys for player two
+        if (Keyboard::isKeyPressed(Keyboard::Q))
+            {
+            bat_2.moveLeft();
+                 // Handle Batt getting Leftsides
+            if (bat_2.getPosition().left < 0 )
+                {
+                bat_2.stopLeft() ;
+                }
+            }
+        else
+            {
+            bat_2.stopLeft();
+            }
+        if (Keyboard::isKeyPressed(Keyboard::D))
+            {
+            bat_2.moveRight();
+                // Handle Batt getting Right sides
+            if (bat_2.getPosition().left + bat_2.getPosition().width> window.getSize().x)
+                {
+                bat_2.stopRight() ;
+                }
+            }
+        else
+            {
+            bat_2.stopRight();
+            }
          
         /*
         
@@ -90,27 +126,33 @@ int main()
        // Update the delta time
         Time dt = clock.restart();
         
-        bat_1.update(dt);
+        bat_1.update(dt);//player 1
+        bat_2.update(dt);//playe r 2
         ball.update(dt);
         // Update the HUD text
-        std::stringstream ss;
-        ss << "Score:" << score << " Lives:" << lives;
-        hud.setString(ss.str());
-
+        std::stringstream ss_1,ss_2;
+        //player 1
+        ss_1 << "Score:" << score_1 << " Lives:" << lives_1;
+        hud_1.setString(ss_1.str());
+        //player 2
+        ss_2 << "Score:" << score_2 << " Lives:" << lives_2;
+        hud_2.setString(ss_2.str());
         // Handle ball hitting the bottom
         if (ball.getPosition().top > window.getSize().y)
             {
             // reverse the ball direction
                 ball.reboundBottom();
             // Remove a life
-                lives--;
+                lives_1--;
+                score_2++;
             // Check for zero lives
-                if (lives < 1) 
+                if (lives_1 < 1) 
                     {
                     // reset the score
-                        score = 0;
+                        score_1 = 0;
                     // reset the lives
-                        lives = 3;
+                        lives_1 = 3;
+                        
                     }
             }
             // Handle ball hitting top
@@ -118,19 +160,27 @@ int main()
             {
                 ball.reboundBatOrTop();
             // Add a point to the players score
-                score++;
+                score_1++;
+                lives_2--;
             }
             // Handle ball hitting sides
         if (ball.getPosition().left < 0 ||ball.getPosition().left + ball.getPosition().width> window.getSize().x)
             {
                 ball.reboundSides();
             }
-        // Has the ball hit the bat?
+        // Has the ball hit the bat player 1?
         if (ball.getPosition().intersects(bat_1.getPosition()))
             {
             // Hit detected so reverse the ball and score a point
                 ball.reboundBatOrTop();
             }
+        // Has the ball hit the bat player 2?
+        if (ball.getPosition().intersects(bat_2.getPosition()))
+            {
+            // Hit detected so reverse the ball and score a point
+                ball.reboundBatOrTop();
+            }
+
 
         /*
         **********************************************
@@ -138,7 +188,8 @@ int main()
         **********************************************
         */
         window.clear();
-        window.draw(hud);
+        window.draw(hud_1);/*player 1*/
+        window.draw(hud_2);/*player 2*/
         window.draw(bat_1.getShape());//first player 
         window.draw(bat_2.getShape());//second player 
         window.draw(ball.getShape());
