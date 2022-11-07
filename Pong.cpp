@@ -13,6 +13,7 @@ int main()
     int lives = 3;
     // Create a bat at the bottom center of the screen
     Bat bat(1024/ 2, 768 - 20);
+    Bat bat2(1024/ 2, 20);
     // Create a ball
     Ball ball(1024 / 2, 0);
     // Create a Text object called HUD
@@ -137,6 +138,7 @@ int main()
         window.clear();
         window.draw(hud);
         window.draw(bat.getShape());
+        window.draw(bat2.getShape());
         window.draw(ball.getShape());
         window.display();
 
