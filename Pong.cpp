@@ -12,8 +12,10 @@ int main()
     int score = 0;
     int lives = 3;
     // Create a bat at the bottom center of the screen
-    Bat bat(1024/ 2, 768 - 20);
-    Bat bat2(1024/ 2, 20);
+    //first player 
+    Bat bat_1(1024/ 2, 768 - 20);
+    //Second player 
+    Bat bat_2(1024/ 2, 20);
     // Create a ball
     Ball ball(1024 / 2, 0);
     // Create a Text object called HUD
@@ -50,32 +52,32 @@ int main()
             {
             window.close();
             }
-        // Handle the pressing and releasing of the arrow keys
+        // Handle the pressing and releasing of the arrow keys for player one 
         if (Keyboard::isKeyPressed(Keyboard::Left))
             {
-            bat.moveLeft();
+            bat_1.moveLeft();
                  // Handle Batt getting Leftsides
-            if (bat.getPosition().left < 0 )
+            if (bat_1.getPosition().left < 0 )
                 {
-                bat.stopLeft() ;
+                bat_1.stopLeft() ;
                 }
             }
         else
             {
-            bat.stopLeft();
+            bat_1.stopLeft();
             }
         if (Keyboard::isKeyPressed(Keyboard::Right))
             {
-            bat.moveRight();
+            bat_1.moveRight();
                 // Handle Batt getting Right sides
-            if (bat.getPosition().left + bat.getPosition().width> window.getSize().x)
+            if (bat_1.getPosition().left + bat_1.getPosition().width> window.getSize().x)
                 {
-                bat.stopRight() ;
+                bat_1.stopRight() ;
                 }
             }
         else
             {
-            bat.stopRight();
+            bat_1.stopRight();
             }
           
          
@@ -88,7 +90,7 @@ int main()
        // Update the delta time
         Time dt = clock.restart();
         
-        bat.update(dt);
+        bat_1.update(dt);
         ball.update(dt);
         // Update the HUD text
         std::stringstream ss;
@@ -124,7 +126,7 @@ int main()
                 ball.reboundSides();
             }
         // Has the ball hit the bat?
-        if (ball.getPosition().intersects(bat.getPosition()))
+        if (ball.getPosition().intersects(bat_1.getPosition()))
             {
             // Hit detected so reverse the ball and score a point
                 ball.reboundBatOrTop();
@@ -137,8 +139,8 @@ int main()
         */
         window.clear();
         window.draw(hud);
-        window.draw(bat.getShape());
-        window.draw(bat2.getShape());
+        window.draw(bat_1.getShape());//first player 
+        window.draw(bat_2.getShape());//second player 
         window.draw(ball.getShape());
         window.display();
 
