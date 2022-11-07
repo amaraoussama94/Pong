@@ -117,11 +117,7 @@ int main()
             bat_2.stopRight();
             }
          
-        /*
-        
-        **********************************************
-        *****Update the bat, the ball and the HUD*****
-        **********************************************
+        /*lives_2
         */
        // Update the delta time
         Time dt = clock.restart();
@@ -162,6 +158,14 @@ int main()
             // Add a point to the players score
                 score_1++;
                 lives_2--;
+             if (lives_2 < 1) 
+                    {
+                    // reset the score
+                        score_2 = 0;
+                    // reset the lives
+                        lives_2 = 3;
+                        
+                    }
             }
             // Handle ball hitting sides
         if (ball.getPosition().left < 0 ||ball.getPosition().left + ball.getPosition().width> window.getSize().x)
