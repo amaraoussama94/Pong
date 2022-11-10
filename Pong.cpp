@@ -100,7 +100,95 @@ int main()
             }
 
          }
+        if (state == State::SINGLEPLAYER)
+        {
+      
+            if (Keyboard::isKeyPressed(Keyboard::Left))
+                {
+                bat_1.moveLeft();
+                    // Handle Batt getting Leftsides
+                if (bat_1.getPosition().left < 0 )
+                    {
+                    bat_1.stopLeft() ;
+                    }
+                }
+            else
+                {
+                bat_1.stopLeft();
+                }
+            if (Keyboard::isKeyPressed(Keyboard::Right))
+                {
+                bat_1.moveRight();
+                    // Handle Batt getting Right sides
+                if (bat_1.getPosition().left + bat_1.getPosition().width> window.getSize().x)
+                    {
+                    bat_1.stopRight() ;
+                    }
+                }
+            else
+                {
+                bat_1.stopRight();
+                }
+            
+        // Update the delta time
+            Time dt = clock.restart();
+            
+            bat_1.update(dt);//player 1
+            ball.update(dt);
+            // Update the HUD text
+            std::stringstream ss_1;
+            //player 1
+            ss_1 << "Score:" << score_1 << " Lives:" << lives_1;
+            hud_1.setString(ss_1.str());
+            // Handle ball hitting the bottom
+            if (ball.getPosition().top > window.getSize().y)
+                {
+                // reverse the ball direction
+                    ball.reboundBottom();
+                // Remove a life
+                    lives_1--;
+                // Check for zero lives
+                    if (lives_1 < 1) 
+                        {
+                        // reset the score
+                            score_1 = 0;
+                        // reset the lives
+                            lives_1 = 3;
+                            
+                        }
+                }
+                // Handle ball hitting top
+            if (ball.getPosition().top < 0)
+                {
+                    ball.reboundBatOrTop();
+                // Add a point to the players score
+                    score_1++;
+                }
+                // Handle ball hitting sides
+            if (ball.getPosition().left < 0 ||ball.getPosition().left + ball.getPosition().width> window.getSize().x)
+                {
+                    ball.reboundSides();
+                }
+            // Has the ball hit the bat player 1?
+            if (ball.getPosition().intersects(bat_1.getPosition()))
+                {
+                // Hit detected so reverse the ball and score a point
+                    ball.reboundBatOrTop();
+                }
 
+            /*
+            **********************************************
+            ****** Draw the bat, the ball and the HUD*****
+            **********************************************
+            */
+            window.clear();
+            window.draw(hud_1);/*player 1*/
+            window.draw(bat_1.getShape());//first player 
+            window.draw(ball.getShape());
+            window.display();
+
+        }/*******end Single player mode********/ 
+        
         if (state == State::MULTIPLAYER)
         {
       
