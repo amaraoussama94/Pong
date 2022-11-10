@@ -4,7 +4,7 @@
 <h3 align="left">How to Use: </h3>    
 
 install sfml :sudo apt-get install libsfml-dev
-install make : *sudo apt-get install  make
+install make : *sudo apt-get install  make</br>
                *cd Pong 
                *make
                *make clean
