@@ -61,8 +61,8 @@ int main()
      "1- Single player mode" <<
 	"\n2- multiplayer mode" ;
 	GameMode.setString(ssGameMode.str());
-    /*player 1*///////////////////////////////////////
-      
+    /*to avoid  ball it 1000 time the wall in1 s*/
+    float Time_elapsed =0 ;
     while (window.isOpen())
         {
     /*
@@ -106,6 +106,7 @@ int main()
             {
                 state = State::MENU; 
             } 
+            /***************Single Player Mode ***************************/
         if (state == State::SINGLEPLAYER)
         {
       
@@ -138,7 +139,7 @@ int main()
             
         // Update the delta time
             Time dt = clock.restart();
-            
+            float a= dt.asSeconds() ;
             bat_1.update(dt);//player 1
             ball.update(dt);
             // Update the HUD text
@@ -165,11 +166,13 @@ int main()
                         }
                 }
                 // Handle ball hitting top
-            if (ball.getPosition().top < 0)
+               Time_elapsed += dt.asSeconds();
+            if ((ball.getPosition().top < 0) )
                 {
                     ball.reboundBatOrTop();
+                   if(Time_elapsed > 1) 
                 // Add a point to the players score
-                    score_1++;
+                        score_1++;
                 }
                 // Handle ball hitting sides
             if (ball.getPosition().left < 0 ||ball.getPosition().left + ball.getPosition().width> window.getSize().x)
