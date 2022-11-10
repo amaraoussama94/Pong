@@ -12,7 +12,10 @@ install make :-sudo apt-get install  make</br>
 <h3 align="left">Generale info: </h3>    
 *Game control :
 escape to close  game</br>
-L+R key to control player</br>
+M for menu </br>
+L+R key to control 1st player</br>
+Q and D to control 2st player </br>
+
 
 *Game name: Planning pong</br>
 *version :0.1</br>
