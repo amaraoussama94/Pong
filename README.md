@@ -9,19 +9,6 @@ install make :-sudo apt-get install  make</br>
               -make</br>
               -make clean</br>
               -./Pong</br>
-<h3 align="left">Generale info: </h3>    
-*Game control :
-escape to close  game</br>
-M for menu </br>
-L+R key to control 1st player</br>
-Q and D to control 2st player </br>
-
-install sfml :sudo apt-get install libsfml-dev
-install make : *sudo apt-get install  make
-               *cd Pong 
-               *make
-               *make clean
-               *./Pong
 <h3 align="left">Generale info:(#how-to-use)</h3>    
 *Game control :
 escape to close  game</br>
