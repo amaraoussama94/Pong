@@ -9,7 +9,7 @@ install make :-sudo apt-get install  make</br>
               -make</br>
               -make clean</br>
               -./Pong</br>
-<h3 align="left">Generale info:(#how-to-use)</h3>    
+<h3 align="left">Generale info: </h3>    
 *Game control :
 escape to close  game</br>
 L+R key to control player</br>
