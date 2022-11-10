@@ -16,6 +16,15 @@ M for menu </br>
 L+R key to control 1st player</br>
 Q and D to control 2st player </br>
 
+install sfml :sudo apt-get install libsfml-dev
+install make : *sudo apt-get install  make
+               *cd Pong 
+               *make
+               *make clean
+               *./Pong
+<h3 align="left">Generale info:(#how-to-use)</h3>    
+escape to close  game
+L+R key to control player
 
 *Game name: Planning pong</br>
 *version :0.1</br>
