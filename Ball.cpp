@@ -41,6 +41,13 @@ void Ball::reboundBottom()
         m_DirectionY = m_DirectionY;
     }
 
+void Ball::reboundBatOrTopMultiplayer()// for multiplayer mode 
+    {
+        m_Position.y = 100;
+        m_Position.x = 500;
+        m_DirectionY = -m_DirectionY;
+    }
+
 void Ball::update(Time dt)
     {
         // Update the ball's position

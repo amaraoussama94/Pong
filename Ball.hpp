@@ -19,6 +19,7 @@ class Ball
         float getXVelocity();
         void reboundSides();
         void reboundBatOrTop();
+        void reboundBatOrTopMultiplayer();
         void reboundBottom();
         void update(Time dt);
     };

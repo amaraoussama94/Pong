@@ -102,10 +102,10 @@ int main()
 
          }
          /**BAck to menu */
-         if(event.key.code == Keyboard::M)
+         /*if(lives_1 == 0 ||  lives_2 == 0)//event.key.code == Keyboard::M  
             { 
                 state = State::MENU;//change mode to multiplayer mode 
-            }
+            }*/
         if (state == State::SINGLEPLAYER)
         {
       
@@ -156,6 +156,7 @@ int main()
                 // Check for zero lives
                     if (lives_1 < 1) 
                         {
+                            state = State::MENU;
                         // reset the score
                             score_1 = 0;
                         // reset the lives
@@ -279,6 +280,7 @@ int main()
                 // Check for zero lives
                     if (lives_1 < 1) 
                         {
+                            state = State::MENU;
                         // reset the score
                             score_1 = 0;
                         // reset the lives
@@ -289,12 +291,13 @@ int main()
                 // Handle ball hitting top
             if (ball.getPosition().top < 0)
                 {
-                    ball.reboundBatOrTop();
+                    ball.reboundBatOrTopMultiplayer();/******************************************************************/
                 // Add a point to the players score
                     score_1++;
                     lives_2--;
                 if (lives_2 < 1) 
                         {
+                            state = State::MENU;
                         // reset the score
                             score_2 = 0;
                         // reset the lives
