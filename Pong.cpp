@@ -86,7 +86,8 @@ int main()
              
         /*******start********/ 
          if (state == State::MENU)
-         {
+         {  
+            window.clear();
             window.draw(GameMode);//draw menu to the screen
             window.display();//F*** don t miss this all drawing in the screen is handeled with this fucnction
             if(Keyboard::isKeyPressed(Keyboard::Num1) )//event.key.code == Keyboard::Num1
@@ -100,6 +101,11 @@ int main()
             }
 
          }
+         /**BAck to menu */
+         if(event.key.code == Keyboard::M)
+            { 
+                state = State::MENU;//change mode to multiplayer mode 
+            }
         if (state == State::SINGLEPLAYER)
         {
       
