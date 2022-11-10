@@ -5,7 +5,7 @@
 
 install sfml :sudo apt-get install libsfml-dev
 install make : sudo apt-get install  make
-               cd Pong
+               cd Pong<\b>
                make
                make clean
                ./Pong
