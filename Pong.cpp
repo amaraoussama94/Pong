@@ -102,10 +102,10 @@ int main()
 
          }
          /**BAck to menu */
-         /*if(lives_1 == 0 ||  lives_2 == 0)//event.key.code == Keyboard::M  
-            { 
-                state = State::MENU;//change mode to multiplayer mode 
-            }*/
+          if(event.key.code == Keyboard::M )
+            {
+                state = State::MENU; 
+            } 
         if (state == State::SINGLEPLAYER)
         {
       
