@@ -41,7 +41,23 @@ int main()
     hud_2.setFont(font);//player 2
     // Make it nice and big
     hud_1.setCharacterSize(25);//player 1
-    hud_2.setCharacterSize(25);//player 1
+    hud_2.setCharacterSize(25);//player 1name: Update README
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Update this repo's README with recent activity
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: jamesgeorge007/github-activity-readme@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     // Choose a color
     hud_1.setFillColor(Color::White);//player 1
     hud_1.setPosition(20, 768/2);//player 1
@@ -101,7 +117,23 @@ int main()
             }
 
          }
-         /**BAck to menu */
+         /**BAck to menu */name: Update README
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Update this repo's README with recent activity
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: jamesgeorge007/github-activity-readme@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           if(event.key.code == Keyboard::M )
             {
                 state = State::MENU; 
@@ -286,9 +318,10 @@ int main()
                             state = State::MENU;
                         // reset the score
                             score_1 = 0;
+			    score_2 = 0;
                         // reset the lives
                             lives_1 = 3;
-                            
+			    lives_2 = 3;
                         }
                 }
                 // Handle ball hitting top
@@ -302,9 +335,11 @@ int main()
                         {
                             state = State::MENU;
                         // reset the score
-                            score_2 = 0;
+                            score_1 = 0;
+			    score_2 = 0;
                         // reset the lives
-                            lives_2 = 3;
+                            lives_1 = 3;
+			    lives_2 = 3;
                             
                         }
                 }
