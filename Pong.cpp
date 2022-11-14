@@ -42,22 +42,6 @@ int main()
     // Make it nice and big
     hud_1.setCharacterSize(25);//player 1
     hud_2.setCharacterSize(25);//player 1name: Update README
-
-on:
-  schedule:
-    - cron: '*/30 * * * *'
-  workflow_dispatch:
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    name: Update this repo's README with recent activity
-
-    steps:
-      - uses: actions/checkout@v2
-      - uses: jamesgeorge007/github-activity-readme@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     // Choose a color
     hud_1.setFillColor(Color::White);//player 1
     hud_1.setPosition(20, 768/2);//player 1
@@ -117,23 +101,7 @@ jobs:
             }
 
          }
-         /**BAck to menu */name: Update README
-
-on:
-  schedule:
-    - cron: '*/30 * * * *'
-  workflow_dispatch:
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    name: Update this repo's README with recent activity
-
-    steps:
-      - uses: actions/checkout@v2
-      - uses: jamesgeorge007/github-activity-readme@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+         /**BAck to menu */ 
           if(event.key.code == Keyboard::M )
             {
                 state = State::MENU; 
