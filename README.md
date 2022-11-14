@@ -16,10 +16,10 @@ M for the menu of the  game</br>
 L+R key to control 1st player</br>
 Q+D  to control 2nd player</br>
 *Game name: Pong</br>
-*version :0.1</br>
+*version :1.0</br>
 
 <h3 align="left">The features and objects of a game </h3>  :  
-                                    •one player .</br> 
+                                    •one player and multiplayer game.</br> 
                                     •If ball hit top screen score will increase.</br>
                                     •if ball out of  screen you will lose  life .</br>
                                     •if number of life  is the  game will automatically start again from zero </br>
