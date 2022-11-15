@@ -64,7 +64,7 @@ int main()
 	GameMode.setFont(font);
 	GameMode.setCharacterSize(80);
 	GameMode.setFillColor(Color::White);
-	GameMode.setPosition(100, 300);
+	GameMode.setPosition(resolution.x/2 -400, resolution.y/2 - 100);
 	std::stringstream ssGameMode;
 	ssGameMode << 
      "1- Single player mode" <<
