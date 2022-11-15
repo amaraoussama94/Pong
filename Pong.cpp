@@ -53,9 +53,9 @@ int main()
     hud_2.setCharacterSize(25);//player 1name: Update README
     // Choose a color
     hud_1.setFillColor(Color::White);//player 1
-    hud_1.setPosition(20, 768/2);//player 1
+    hud_1.setPosition(20, resolution.y/2.0f);//player 1
     hud_2.setFillColor(Color::White);//player 2
-    hud_2.setPosition(1024-200, 768/2);//player 2
+    hud_2.setPosition(resolution.x-200, resolution.y/2.0f);//player 2
     // Here is our clock for timing everything
     Clock clock;
 
