@@ -13,9 +13,18 @@ int main()
     // Start with the MENU state
     State state = State::MENU;
     // Create a video mode object
-    VideoMode vm(1024, 768);
+    //VideoMode vm(1024, 768);
     // Create and open a window for the game
-    RenderWindow window(vm, "Pong");//, Style::Fullscreen   third  para if  you want full screen mood
+   // RenderWindow window(vm, "Pong");//, Style::Fullscreen   third  para if  you want full screen mood
+
+    Vector2f resolution;
+    resolution.x = VideoMode::getDesktopMode().width;
+    resolution.y = VideoMode::getDesktopMode().height;
+    // Create and open a window for the game
+    // A regular RenderWindow
+    RenderWindow window;
+    window.create(VideoMode(resolution.x, resolution.y),"Pong");//,Style::Fullscreen
+
     //player 1
     int score_1 = 0;
     int lives_1 = 3;
