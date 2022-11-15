@@ -34,11 +34,11 @@ int main()
     int lives_2 = 3;
     // Create a bat at the bottom center of the screen
     //first player 
-    Bat bat_1(1024/ 2, 768 - 20);
+    Bat bat_1(resolution.x/ 2, resolution.y - 80);
     //Second player 
-    Bat bat_2(1024/ 2, 20);
+    Bat bat_2(resolution.x/ 2, 20);
     // Create a ball
-    Ball ball(1024 / 2, 0);
+    Ball ball(resolution.x / 2, 0);
     // Create a Text object called HUD
     Text hud_1;// for player 1
     Text hud_2;// for player 2
