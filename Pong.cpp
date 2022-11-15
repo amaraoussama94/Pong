@@ -13,9 +13,18 @@ int main()
     // Start with the MENU state
     State state = State::MENU;
     // Create a video mode object
-    VideoMode vm(1024, 768);
+    //VideoMode vm(1024, 768);
     // Create and open a window for the game
-    RenderWindow window(vm, "Pong");//, Style::Fullscreen   third  para if  you want full screen mood
+   // RenderWindow window(vm, "Pong");//, Style::Fullscreen   third  para if  you want full screen mood
+
+    Vector2f resolution;
+    resolution.x = VideoMode::getDesktopMode().width;
+    resolution.y = VideoMode::getDesktopMode().height;
+    // Create and open a window for the game
+    // A regular RenderWindow
+    RenderWindow window;
+    window.create(VideoMode(resolution.x, resolution.y),"Pong");//,Style::Fullscreen
+
     //player 1
     int score_1 = 0;
     int lives_1 = 3;
@@ -25,11 +34,11 @@ int main()
     int lives_2 = 3;
     // Create a bat at the bottom center of the screen
     //first player 
-    Bat bat_1(1024/ 2, 768 - 20);
+    Bat bat_1(resolution.x/ 2, resolution.y - 80);
     //Second player 
-    Bat bat_2(1024/ 2, 20);
+    Bat bat_2(resolution.x/ 2, 20);
     // Create a ball
-    Ball ball(1024 / 2, 0);
+    Ball ball(resolution.x / 2, 0);
     // Create a Text object called HUD
     Text hud_1;// for player 1
     Text hud_2;// for player 2
@@ -44,9 +53,9 @@ int main()
     hud_2.setCharacterSize(25);//player 1name: Update README
     // Choose a color
     hud_1.setFillColor(Color::White);//player 1
-    hud_1.setPosition(20, 768/2);//player 1
+    hud_1.setPosition(20, resolution.y/2.0f);//player 1
     hud_2.setFillColor(Color::White);//player 2
-    hud_2.setPosition(1024-200, 768/2);//player 2
+    hud_2.setPosition(resolution.x-200, resolution.y/2.0f);//player 2
     // Here is our clock for timing everything
     Clock clock;
 
@@ -55,7 +64,7 @@ int main()
 	GameMode.setFont(font);
 	GameMode.setCharacterSize(80);
 	GameMode.setFillColor(Color::White);
-	GameMode.setPosition(100, 300);
+	GameMode.setPosition(resolution.x/2 -400, resolution.y/2 - 100);
 	std::stringstream ssGameMode;
 	ssGameMode << 
      "1- Single player mode" <<
