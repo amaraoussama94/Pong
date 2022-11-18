@@ -16,7 +16,7 @@ M for the menu of the  game</br>
 L+R key to control 1st player</br>
 Q+D  to control 2nd player</br>
 *Game name: Pong</br>
-*version :1.0</br>
+*version :1.8</br>
 
 <h3 align="left">The features and objects of a game </h3>  :  
                                     •one player and multiplayer game.</br> 
