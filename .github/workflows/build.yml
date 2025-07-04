@@ -21,7 +21,11 @@ jobs:
           submodules: recursive
 # Install dependencies and build project
       - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y cmake g++ make libx11-dev libgl1-mesa-dev libudev-dev libopenal-dev libflac-dev libvorbis-dev libfreetype6-dev
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake g++ make \
+            libx11-dev libxrandr-dev libxcursor-dev libxi-dev libxinerama-dev \
+            libgl1-mesa-dev libudev-dev libopenal-dev libflac-dev libvorbis-dev libfreetype6-dev
 
       - name: Build project
         run: make
@@ -48,7 +52,7 @@ jobs:
             mingw-w64-x86_64-gcc
             mingw-w64-x86_64-cmake
             mingw-w64-x86_64-make
-            mingw-w64-x86_64-SFML
+
 # build project 
       - name: Build project
         shell: msys2 {0}
