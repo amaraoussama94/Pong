@@ -55,7 +55,7 @@ $(SFML_BUILD_DIR)/lib/libsfml-graphics.a:
 	@echo " Building SFML..."
 	mkdir -p $(SFML_BUILD_DIR)
 	cd $(SFML_BUILD_DIR) && cmake .. $(CMAKE_FLAGS)
- $(MAKE) -C $(SFML_BUILD_DIR)
+	$(MAKE) -C $(SFML_BUILD_DIR)
 
 
 #Compiles each .cpp file into a .o object file
