@@ -36,6 +36,7 @@ ifeq ($(UNAME_S),Linux)
 	EXE = $(BIN_DIR)/$(PROJECT_NAME)
 	COPY_DLLS = @true
 	CMAKE_FLAGS = -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=TRUE
+	CMAKE_GENERATOR =
 else
 	SFML_LIBS = -lsfml-graphics -lsfml-window -lsfml-system
 	SFML_LIB_DIR = $(SFML_BUILD_DIR)/lib
@@ -44,6 +45,10 @@ else
 	COPY_DLLS = cp $(SFML_BIN_DIR)/*.dll $(BIN_DIR)/
 #works with MSYS2 or MinGW to avoid fail related	to CMake policies
 	CMAKE_FLAGS = -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=TRUE -DCMAKE_POLICY_VERSION=3.5
+#fix :The issue is that CMake on Windows is generating build files for a different generator 
+#(like Ninja or Visual Studio), but your Makefile expects Makefiles. To fix this, 
+#you need to explicitly tell CMake to use the MinGW Makefiles generator when building SFML on Windows.
+	CMAKE_GENERATOR = -G "MinGW Makefiles"
 endif
 
 # === TARGETS ===
@@ -54,7 +59,7 @@ all: $(SFML_BUILD_DIR)/lib/libsfml-graphics.a $(EXE)
 $(SFML_BUILD_DIR)/lib/libsfml-graphics.a:
 	@echo " Building SFML..."
 	mkdir -p $(SFML_BUILD_DIR)
-	cd $(SFML_BUILD_DIR) && cmake .. $(CMAKE_FLAGS)
+	cd $(SFML_BUILD_DIR) && cmake .. $(CMAKE_GENERATOR)  $(CMAKE_FLAGS)
 	$(MAKE) -C $(SFML_BUILD_DIR)
 
 
