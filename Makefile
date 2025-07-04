@@ -35,12 +35,15 @@ ifeq ($(UNAME_S),Linux)
 	SFML_LIB_DIR = $(SFML_BUILD_DIR)/lib
 	EXE = $(BIN_DIR)/$(PROJECT_NAME)
 	COPY_DLLS = @true
+	CMAKE_FLAGS = -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=TRUE
 else
 	SFML_LIBS = -lsfml-graphics -lsfml-window -lsfml-system
 	SFML_LIB_DIR = $(SFML_BUILD_DIR)/lib
 	EXE = $(BIN_DIR)/$(PROJECT_NAME).exe
 #If on Windows, copy the SFML DLLs to the bin directory
 	COPY_DLLS = cp $(SFML_BIN_DIR)/*.dll $(BIN_DIR)/
+#works with MSYS2 or MinGW to avoid fail related	to CMake policies
+	CMAKE_FLAGS = -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=TRUE -DCMAKE_POLICY_VERSION=3.5
 endif
 
 # === TARGETS ===
@@ -49,21 +52,11 @@ all: $(SFML_BUILD_DIR)/lib/libsfml-graphics.a $(EXE)
 
 #Builds SFML if it hasn’t been built yet:
 $(SFML_BUILD_DIR)/lib/libsfml-graphics.a:
-	@echo "🔧 Building SFML..."
+	@echo " Building SFML..."
 	mkdir -p $(SFML_BUILD_DIR)
 	cd $(SFML_BUILD_DIR) && cmake .. $(CMAKE_FLAGS)
-	$(MAKE) -C $(SFML_BUILD_DIR)
+ 	$(MAKE) -C $(SFML_BUILD_DIR)
 
-#Builds it using the generated Makefiles
-ifeq ($(UNAME_S),Linux)
-	CMAKE_FLAGS = -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=TRUE
-else
-#workaround for windows cmake policy warning
-#CMAKE_POLICY_VERSION is used to avoid warnings about CMake policies
-	CMAKE_FLAGS = -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=TRUE -DCMAKE_POLICY_VERSION=3.5
-endif
-
-	$(MAKE) -C $(SFML_BUILD_DIR)
 
 #Compiles each .cpp file into a .o object file
 #$< is the source file, $@ is the output object file
