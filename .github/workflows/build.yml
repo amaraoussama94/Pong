@@ -61,9 +61,8 @@ jobs:
 # build project 
       - name: Build project
         shell: msys2 {0}
-        env:
-          PATH: ${{ env.CMAKE_BIN_PATH }}:$PATH
         run: |
+          export PATH="$PWD/cmake-3.27.9-windows-x86_64/bin:$PATH"
           make
 # Upload the binary and DLLs
       - name: Upload binary and DLLs
