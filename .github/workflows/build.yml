@@ -50,14 +50,19 @@ jobs:
           update: true
           install: >-
             make
-            cmake
             mingw-w64-x86_64-gcc
 
-
+      - name: Install CMake 3.27.9
+        run: |
+          curl -LO https://github.com/Kitware/CMake/releases/download/v3.27.9/cmake-3.27.9-windows-x86_64.zip
+          tar -xf cmake-3.27.9-windows-x86_64.zip
+          echo "CMAKE_BIN_PATH=$(pwd)/cmake-3.27.9-windows-x86_64/bin" >> $GITHUB_ENV
 
 # build project 
       - name: Build project
         shell: msys2 {0}
+        env:
+          PATH: ${{ env.CMAKE_BIN_PATH }}:$PATH
         run: |
           make
 # Upload the binary and DLLs
