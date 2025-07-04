@@ -51,8 +51,18 @@ all: $(SFML_BUILD_DIR)/lib/libsfml-graphics.a $(EXE)
 $(SFML_BUILD_DIR)/lib/libsfml-graphics.a:
 	@echo "🔧 Building SFML..."
 	mkdir -p $(SFML_BUILD_DIR)
+	cd $(SFML_BUILD_DIR) && cmake .. $(CMAKE_FLAGS)
+	$(MAKE) -C $(SFML_BUILD_DIR)
+
 #Builds it using the generated Makefiles
-	cd $(SFML_BUILD_DIR) && cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=TRUE
+ifeq ($(UNAME_S),Linux)
+	CMAKE_FLAGS = -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=TRUE
+else
+#workaround for windows cmake policy warning
+#CMAKE_POLICY_VERSION is used to avoid warnings about CMake policies
+	CMAKE_FLAGS = -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=TRUE -DCMAKE_POLICY_VERSION=3.5
+endif
+
 	$(MAKE) -C $(SFML_BUILD_DIR)
 
 #Compiles each .cpp file into a .o object file
