@@ -2,6 +2,7 @@
 #Sets the name of your final executable
 PROJECT_NAME = pong
 SRC_DIR = src
+INC_DIR = include
 BUILD_DIR = build
 #where the final executable goes
 BIN_DIR = bin
@@ -15,12 +16,13 @@ CXX = g++
 #-std=c++17: use C++17 standard
 #-Wall: enable all warnings
 #-I...: include SFML headers
-CXXFLAGS = -std=c++17 -Wall -I$(SFML_DIR)/include
+CXXFLAGS = -std=c++17 -Wall -I$(SFML_DIR)/include -I$(INC_DIR)
 
 # Linker flags
 LDFLAGS = 
 # finds all .cpp files in src/
 SOURCES = $(wildcard $(SRC_DIR)/*.cpp)
+#SOURCES = $(shell find $(SRC_DIR) -name '*.cpp')
 #maps each .cpp file to a corresponding .o file in build/
 OBJECTS = $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(SOURCES))
 
