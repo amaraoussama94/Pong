@@ -31,15 +31,15 @@ OBJECTS = $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(SOURCES))
 # === OS DETECTION ===
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
-    EXE = $(BIN_DIR)/$(PROJECT_NAME)
-    COPY_DLLS = @true
-    CMAKE_GENERATOR =
-    CMAKE_ENV =
+	EXE = $(BIN_DIR)/$(PROJECT_NAME)
+	COPY_DLLS = @true
+	CMAKE_GENERATOR =
+	CMAKE_ENV =
 else
-    EXE = $(BIN_DIR)/$(PROJECT_NAME).exe
-    COPY_DLLS = if exist $(SFML_INSTALL_DIR)/bin/*.dll copy $(SFML_INSTALL_DIR)/bin\*.dll $(BIN_DIR)\ >nul
-    CMAKE_GENERATOR = -G "MinGW Makefiles"
-    CMAKE_ENV = -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DCMAKE_MAKE_PROGRAM=mingw32-make
+	EXE = $(BIN_DIR)/$(PROJECT_NAME).exe
+	COPY_DLLS = if exist $(SFML_INSTALL_DIR)/bin/*.dll copy $(SFML_INSTALL_DIR)/bin\*.dll $(BIN_DIR)\ >nul
+	CMAKE_GENERATOR = -G "MinGW Makefiles"
+	CMAKE_ENV = -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DCMAKE_MAKE_PROGRAM=mingw32-make
 endif
 
 # === TARGETS ===
