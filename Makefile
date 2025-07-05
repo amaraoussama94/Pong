@@ -78,7 +78,13 @@ check-env:
 # === TARGETS ===
 # The default target. It builds SFML first, then your game.
 # Updated to trigger SFML build based on the presence of either static or shared libraries.
-all: check-shell $(SFML_INSTALL_DIR)/lib/libsfml-graphics.a $(SFML_INSTALL_DIR)/bin/sfml-graphics-3.dll $(EXE)
+ifeq ($(UNAME_S),Linux)
+SFML_GRAPHICS_LIB = $(SFML_INSTALL_DIR)/lib/libsfml-graphics.a
+else
+SFML_GRAPHICS_LIB = $(SFML_INSTALL_DIR)/bin/sfml-graphics-3.dll
+endif
+
+all: check-shell $(SFML_GRAPHICS_LIB) $(EXE)
 
 # === Build and Install SFML from Source ===
 # This rule ensures SFML is built and installed before compiling the game.
