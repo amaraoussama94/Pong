@@ -40,7 +40,8 @@ else ifeq ($(findstring MINGW,$(UNAME_S)),MINGW)
 	EXE = $(BIN_DIR)/$(PROJECT_NAME).exe
 	COPY_DLLS = if exist $(SFML_INSTALL_DIR)/bin/*.dll copy $(SFML_INSTALL_DIR)/bin\*.dll $(BIN_DIR)\ >nul
 	CMAKE_GENERATOR = -G "MinGW Makefiles"
-	CMAKE_ENV = -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DCMAKE_MAKE_PROGRAM=mingw32-make
+	CMAKE_ENV = -DCMAKE_MAKE_PROGRAM=mingw32-make
+
 else ifeq ($(findstring MSYS,$(UNAME_S)),MSYS)
 	EXE = $(BIN_DIR)/$(PROJECT_NAME).exe
 	COPY_DLLS = cp $(SFML_INSTALL_DIR)/bin/*.dll $(BIN_DIR) 2>/dev/null || true
