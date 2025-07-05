@@ -64,33 +64,33 @@ all: $(SFML_INSTALL_DIR)/lib/libsfml-graphics.a $(EXE)
 # This setup ensures your project uses a clean, portable, and compiler-compatible SFML build.
 
 $(SFML_INSTALL_DIR)/lib/libsfml-graphics.a:
-    @echo "🔧 Building SFML in $(SFML_BUILD_DIR)..."
-    mkdir -p $(SFML_BUILD_DIR)
-    cd $(SFML_BUILD_DIR) && cmake .. $(CMAKE_GENERATOR) \
-        -DCMAKE_INSTALL_PREFIX=$(abspath $(SFML_INSTALL_DIR)) \
-        -DCMAKE_BUILD_TYPE=Release \
-        -DBUILD_SHARED_LIBS=TRUE \
-        $(CMAKE_ENV)
-    $(MAKE) -C $(SFML_BUILD_DIR)
-    $(MAKE) -C $(SFML_BUILD_DIR) install
+	@echo "🔧 Building SFML in $(SFML_BUILD_DIR)..."
+	mkdir -p $(SFML_BUILD_DIR)
+	cd $(SFML_BUILD_DIR) && cmake .. $(CMAKE_GENERATOR) \
+		-DCMAKE_INSTALL_PREFIX=$(abspath $(SFML_INSTALL_DIR)) \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DBUILD_SHARED_LIBS=TRUE \
+		$(CMAKE_ENV)
+	$(MAKE) -C $(SFML_BUILD_DIR)
+	$(MAKE) -C $(SFML_BUILD_DIR) install
 
 # Compiles each .cpp file into a .o object file
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
-    @mkdir -p $(BUILD_DIR)
-    $(CXX) $(CXXFLAGS) -c $< -o $@
+	@mkdir -p $(BUILD_DIR)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # Links all object files into the final executable
 $(EXE): $(OBJECTS)
-    @mkdir -p $(BIN_DIR)
-    $(CXX) $^ -o $@ $(LDFLAGS)
-    $(COPY_DLLS)
+	@mkdir -p $(BIN_DIR)
+	$(CXX) $^ -o $@ $(LDFLAGS)
+	$(COPY_DLLS)
 
 # Deletes your object files and final binary
 clean:
-    rm -rf $(BUILD_DIR) $(BIN_DIR)
+	rm -rf $(BUILD_DIR) $(BIN_DIR)
 
 # Also deletes the SFML build and install directories
 clean-all: clean
-    rm -rf $(SFML_BUILD_DIR) $(SFML_INSTALL_DIR)
+	rm -rf $(SFML_BUILD_DIR) $(SFML_INSTALL_DIR)
 
 .PHONY: all clean clean-all
