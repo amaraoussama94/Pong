@@ -115,11 +115,20 @@ jobs:
           ls -l bin || echo "bin/ not found"
           file bin/pong.exe || echo "pong.exe not found or not a valid file"
 
+      - name: Print shell before build
+        shell: msys2 {0}
+        run: echo "Shell: $SHELL, MSYSTEM: $MSYSTEM"
+
       - name: Build project
         shell: msys2 {0}
         run: |
           export PATH="/mingw64/bin:$PATH"
-          make
+          make VERBOSE=1
+
+      - name: Print shell after build
+        shell: msys2 {0}
+        run: echo "Shell: $SHELL, MSYSTEM: $MSYSTEM"
+
 
       # === STAGE ARTIFACTS FOR UPLOAD ===
       - name: Stage build artifacts
