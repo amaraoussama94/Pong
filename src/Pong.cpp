@@ -37,7 +37,7 @@ int main() {
     // HUD setup
     // HUD setup (SFML 3.0.0 compliant)
     sf::Font font;
-    if (!font.loadFromFile("fonts/DS-DIGI.TTF")) {
+    if (!font.openFromFile("fonts/DS-DIGI.TTF")) {
         std::cerr << "Failed to load font: DS-DIGI.TTF" << std::endl;
         return -1;
     }
@@ -49,6 +49,7 @@ int main() {
     hud_2.setFillColor(sf::Color::White);
     hud_1.setPosition(20.f, resolution.y / 2.0f);
     hud_2.setPosition(resolution.x - 200.f, resolution.y / 2.0f);
+
 
     // Clock for delta time
     sf::Clock clock;

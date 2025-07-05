@@ -30,17 +30,46 @@ OBJECTS = $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(SOURCES))
 
 # === OS DETECTION ===
 UNAME_S := $(shell uname -s)
+
 ifeq ($(UNAME_S),Linux)
 	EXE = $(BIN_DIR)/$(PROJECT_NAME)
 	COPY_DLLS = @true
-	CMAKE_GENERATOR =
+	CMAKE_GENERATOR = -G "Unix Makefiles"
 	CMAKE_ENV =
-else
+else ifeq ($(findstring MINGW,$(UNAME_S)),MINGW)
 	EXE = $(BIN_DIR)/$(PROJECT_NAME).exe
 	COPY_DLLS = if exist $(SFML_INSTALL_DIR)/bin/*.dll copy $(SFML_INSTALL_DIR)/bin\*.dll $(BIN_DIR)\ >nul
 	CMAKE_GENERATOR = -G "MinGW Makefiles"
 	CMAKE_ENV = -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DCMAKE_MAKE_PROGRAM=mingw32-make
+else ifeq ($(findstring MSYS,$(UNAME_S)),MSYS)
+	EXE = $(BIN_DIR)/$(PROJECT_NAME).exe
+	COPY_DLLS = cp $(SFML_INSTALL_DIR)/bin/*.dll $(BIN_DIR) 2>/dev/null || true
+	CMAKE_GENERATOR = -G "Unix Makefiles"
+	CMAKE_ENV =
+else
+	$(error Unsupported platform: $(UNAME_S))
 endif
+
+#	=== COMPILER AND MAKE PROGRAMS ===
+# This section sets the C++ compiler, C compiler, and make program based on the detected OS.
+# It ensures the correct tools are used for building the project, especially on Windows with MinGW
+ifeq ($(findstring MINGW,$(UNAME_S)),MINGW)
+	CXX := $(shell which g++)
+	CC := $(shell which gcc)
+	MAKE_PROGRAM := $(shell which mingw32-make)
+	CMAKE_ENV = -DCMAKE_C_COMPILER=$(CC) -DCMAKE_CXX_COMPILER=$(CXX) -DCMAKE_MAKE_PROGRAM=$(MAKE_PROGRAM)
+endif
+
+#	=== ENVIRONMENT CHECK ===
+# This target prints environment variables and compiler settings for debugging.
+# It helps verify that the Makefile is using the correct tools and paths.
+check-env:
+	@echo "UNAME_S = $(UNAME_S)"
+	@echo "MSYSTEM = $(shell echo $$MSYSTEM)"
+	@echo "CXX = $(CXX)"
+	@echo "CC = $(CC)"
+	@echo "PATH = $$PATH"
+
 
 # === TARGETS ===
 # The default target. It builds SFML first, then your game.
@@ -64,7 +93,7 @@ all: $(SFML_INSTALL_DIR)/lib/libsfml-graphics.a $(EXE)
 # This setup ensures your project uses a clean, portable, and compiler-compatible SFML build.
 
 $(SFML_INSTALL_DIR)/lib/libsfml-graphics.a:
-	@echo "🔧 Building SFML in $(SFML_BUILD_DIR)..."
+	@echo "Building SFML in $(SFML_BUILD_DIR)..."
 	mkdir -p $(SFML_BUILD_DIR)
 	cd $(SFML_BUILD_DIR) && cmake .. $(CMAKE_GENERATOR) \
 		-DCMAKE_INSTALL_PREFIX=$(abspath $(SFML_INSTALL_DIR)) \
