@@ -68,13 +68,16 @@ jobs:
         with:
           update: true
           install: >-
-            make
             mingw-w64-x86_64-gcc
             mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-make
+            mingw-w64-x86_64-pkg-config
 
       - name: Build project
         shell: msys2 {0}
-        run: make
+        run: |
+          export PATH="/mingw64/bin:$PATH"
+          make
 
       - name: Upload binary and DLLs
         uses: actions/upload-artifact@v4
@@ -83,4 +86,3 @@ jobs:
           path: |
             bin/pong.exe
             bin/*.dll
-
