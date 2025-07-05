@@ -1,359 +1,243 @@
 #include "Bat.hpp"
 #include "Ball.hpp"
+#include <SFML/Graphics.hpp>
 #include <sstream>
 #include <fstream>
-
-
 #include <cstdlib>
-#include <SFML/Graphics.hpp>
-int main()
-    {
+#include <optional>
+
+int main() {
     // The game will always be in one of three states
     enum class State { MENU, SINGLEPLAYER, MULTIPLAYER };
     // Start with the MENU state
     State state = State::MENU;
-    // Create a video mode object
-    //VideoMode vm(1024, 768);
-    // Create and open a window for the game
-   // RenderWindow window(vm, "Pong");//, Style::Fullscreen   third  para if  you want full screen mood
 
-    Vector2f resolution;
-    resolution.x = VideoMode::getDesktopMode().width;
-    resolution.y = VideoMode::getDesktopMode().height;
-    // Create and open a window for the game
-    // A regular RenderWindow
-    RenderWindow window;
-    window.create(VideoMode(resolution.x, resolution.y),"Pong");//,Style::Fullscreen
+    // Create a video mode object based on desktop resolution
+    sf::Vector2f resolution;
+    resolution.x = sf::VideoMode::getDesktopMode().size.x;
+    resolution.y = sf::VideoMode::getDesktopMode().size.y;
 
-    //player 1
+    // Create and open a window for the game
+    sf::RenderWindow window;
+    window.create(sf::VideoMode({static_cast<unsigned int>(resolution.x), static_cast<unsigned int>(resolution.y)}), "Pong");
+
+    // Player 1
     int score_1 = 0;
     int lives_1 = 3;
 
-    // player 2
+    // Player 2
     int score_2 = 0;
     int lives_2 = 3;
-    // Create a bat at the bottom center of the screen
-    //first player 
-    Bat bat_1(resolution.x/ 2, resolution.y - 80);
-    //Second player 
-    Bat bat_2(resolution.x/ 2, 20);
-    // Create a ball
+
+    // Create bats and ball
+    Bat bat_1(resolution.x / 2, resolution.y - 80); // Player 1 at bottom
+    Bat bat_2(resolution.x / 2, 20);               // Player 2 at top
     Ball ball(resolution.x / 2, 0);
-    // Create a Text object called HUD
-    Text hud_1;// for player 1
-    Text hud_2;// for player 2
-    // A cool retro-style font
-    Font font;
-    font.loadFromFile("fonts/DS-DIGI.TTF");
-    // Set the font to our retro-style
-    hud_1.setFont(font);//player 1
-    hud_2.setFont(font);//player 2
-    // Make it nice and big
-    hud_1.setCharacterSize(25);//player 1
-    hud_2.setCharacterSize(25);//player 1name: Update README
-    // Choose a color
-    hud_1.setFillColor(Color::White);//player 1
-    hud_1.setPosition(20, resolution.y/2.0f);//player 1
-    hud_2.setFillColor(Color::White);//player 2
-    hud_2.setPosition(resolution.x-200, resolution.y/2.0f);//player 2
-    // Here is our clock for timing everything
-    Clock clock;
 
-    // Menu 
-	Text GameMode;
-	GameMode.setFont(font);
-	GameMode.setCharacterSize(80);
-	GameMode.setFillColor(Color::White);
-	GameMode.setPosition(resolution.x/2 -400, resolution.y/2 - 100);
-	std::stringstream ssGameMode;
-	ssGameMode << 
-     "1- Single player mode" <<
-	"\n2- multiplayer mode" ;
-	GameMode.setString(ssGameMode.str());
-    /*to avoid  ball it 1000 time the wall in1 s*/
-    float Time_elapsed =0 ;
-    while (window.isOpen())
-        {
-    /*
-    **********************************
-    ***** Handle the player input*****
-    **********************************
-    */
+    // HUD setup
+    sf::Text hud_1, hud_2;
+    sf::Font font;
+    font.openFromFile("fonts/DS-DIGI.TTF");
 
-        Event event;
-        while (window.pollEvent(event))
-            {
-            if (event.type == Event::Closed)
-            // Quit the game when the window is closed
-            window.close();
+    hud_1.setFont(font);
+    hud_2.setFont(font);
+    hud_1.setCharacterSize(25);
+    hud_2.setCharacterSize(25);
+    hud_1.setFillColor(sf::Color::White);
+    hud_2.setFillColor(sf::Color::White);
+    hud_1.setPosition(20, resolution.y / 2.0f);
+    hud_2.setPosition(resolution.x - 200, resolution.y / 2.0f);
+
+    // Clock for delta time
+    sf::Clock clock;
+    float Time_elapsed = 0;
+
+    // Menu text
+    sf::Text GameMode;
+    GameMode.setFont(font);
+    GameMode.setCharacterSize(80);
+    GameMode.setFillColor(sf::Color::White);
+    GameMode.setPosition(resolution.x / 2 - 400, resolution.y / 2 - 100);
+    std::stringstream ssGameMode;
+    ssGameMode << "1- Single player mode\n2- multiplayer mode";
+    GameMode.setString(ssGameMode.str());
+
+    while (window.isOpen()) {
+        /*
+        **********************************
+        ***** Handle the player input*****
+        **********************************
+        */
+        sf::Event event;
+        while (window.pollEvent(event)) {
+            if (event.is<sf::Event::Closed>())
+                window.close();
+
+            if (event.is<sf::Event::KeyPressed>()) {
+                auto key = event.get<sf::Event::KeyPressed>().scancode;
+                if (state == State::MENU) {
+                    if (key == sf::Keyboard::Scancode::Num1)
+                        state = State::SINGLEPLAYER; // change mode to single player
+                    else if (key == sf::Keyboard::Scancode::Num2)
+                        state = State::MULTIPLAYER; // change mode to multiplayer
+                }
+                if (key == sf::Keyboard::Scancode::M)
+                    state = State::MENU; // back to menu
             }
-        // Handle the player quitting
-        if (Keyboard::isKeyPressed(Keyboard::Escape))
-            {
-            window.close();
-            }
-             
-        /*******start********/ 
-         if (state == State::MENU)
-         {  
-            window.clear();
-            window.draw(GameMode);//draw menu to the screen
-            window.display();//F*** don t miss this all drawing in the screen is handeled with this fucnction
-            if(Keyboard::isKeyPressed(Keyboard::Num1) )//event.key.code == Keyboard::Num1
-            { 
-                state = State::SINGLEPLAYER;//change mode to single mode 
-                
-            }
-            if(event.key.code == Keyboard::Num2)
-            { 
-                state = State::MULTIPLAYER;//change mode to multiplayer mode 
-            }
-
-         }
-         /**BAck to menu */ 
-          if(event.key.code == Keyboard::M )
-            {
-                state = State::MENU; 
-            } 
-            /***************Single Player Mode ***************************/
-        if (state == State::SINGLEPLAYER)
-        {
-      
-            if (Keyboard::isKeyPressed(Keyboard::Left))
-                {
-                bat_1.moveLeft();
-                    // Handle Batt getting Leftsides
-                if (bat_1.getPosition().left < 0 )
-                    {
-                    bat_1.stopLeft() ;
-                    }
-                }
-            else
-                {
-                bat_1.stopLeft();
-                }
-            if (Keyboard::isKeyPressed(Keyboard::Right))
-                {
-                bat_1.moveRight();
-                    // Handle Batt getting Right sides
-                if (bat_1.getPosition().left + bat_1.getPosition().width> window.getSize().x)
-                    {
-                    bat_1.stopRight() ;
-                    }
-                }
-            else
-                {
-                bat_1.stopRight();
-                }
-            
-        // Update the delta time
-            Time dt = clock.restart();
-            float a= dt.asSeconds() ;
-            bat_1.update(dt);//player 1
-            ball.update(dt);
-            // Update the HUD text
-            std::stringstream ss_1;
-            //player 1
-            ss_1 << "Score:" << score_1 << " Lives:" << lives_1;
-            hud_1.setString(ss_1.str());
-            // Handle ball hitting the bottom
-            if (ball.getPosition().top > window.getSize().y)
-                {
-                // reverse the ball direction
-                    ball.reboundBottom();
-                // Remove a life
-                    lives_1--;
-                // Check for zero lives
-                    if (lives_1 < 1) 
-                        {
-                            state = State::MENU;
-                        // reset the score
-                            score_1 = 0;
-                        // reset the lives
-                            lives_1 = 3;
-                            
-                        }
-                }
-                // Handle ball hitting top
-               Time_elapsed += dt.asSeconds();
-            if ((ball.getPosition().top < 0) )
-                {
-                    ball.reboundBatOrTop();
-                   if(Time_elapsed > 1) 
-                // Add a point to the players score
-                        score_1++;
-                }
-                // Handle ball hitting sides
-            if (ball.getPosition().left < 0 ||ball.getPosition().left + ball.getPosition().width> window.getSize().x)
-                {
-                    ball.reboundSides();
-                }
-            // Has the ball hit the bat player 1?
-            if (ball.getPosition().intersects(bat_1.getPosition()))
-                {
-                // Hit detected so reverse the ball and score a point
-                    ball.reboundBatOrTop();
-                }
-
-            /*
-            **********************************************
-            ****** Draw the bat, the ball and the HUD*****
-            **********************************************
-            */
-            window.clear();
-            window.draw(hud_1);/*player 1*/
-            window.draw(bat_1.getShape());//first player 
-            window.draw(ball.getShape());
-            window.display();
-
-        }/*******end Single player mode********/ 
-        
-        if (state == State::MULTIPLAYER)
-        {
-      
-            if (Keyboard::isKeyPressed(Keyboard::Left))
-                {
-                bat_1.moveLeft();
-                    // Handle Batt getting Leftsides
-                if (bat_1.getPosition().left < 0 )
-                    {
-                    bat_1.stopLeft() ;
-                    }
-                }
-            else
-                {
-                bat_1.stopLeft();
-                }
-            if (Keyboard::isKeyPressed(Keyboard::Right))
-                {
-                bat_1.moveRight();
-                    // Handle Batt getting Right sides
-                if (bat_1.getPosition().left + bat_1.getPosition().width> window.getSize().x)
-                    {
-                    bat_1.stopRight() ;
-                    }
-                }
-            else
-                {
-                bat_1.stopRight();
-                }
-            // Handle the pressing and releasing of the arrow keys for player two
-            if (Keyboard::isKeyPressed(Keyboard::Q))
-                {
-                bat_2.moveLeft();
-                    // Handle Batt getting Leftsides
-                if (bat_2.getPosition().left < 0 )
-                    {
-                    bat_2.stopLeft() ;
-                    }
-                }
-            else
-                {
-                bat_2.stopLeft();
-                }
-            if (Keyboard::isKeyPressed(Keyboard::D))
-                {
-                bat_2.moveRight();
-                    // Handle Batt getting Right sides
-                if (bat_2.getPosition().left + bat_2.getPosition().width> window.getSize().x)
-                    {
-                    bat_2.stopRight() ;
-                    }
-                }
-            else
-                {
-                bat_2.stopRight();
-                }
-            
-            /*lives_2
-            */
-        // Update the delta time
-            Time dt = clock.restart();
-            
-            bat_1.update(dt);//player 1
-            bat_2.update(dt);//playe r 2
-            ball.update(dt);
-            // Update the HUD text
-            std::stringstream ss_1,ss_2;
-            //player 1
-            ss_1 << "Score:" << score_1 << " Lives:" << lives_1;
-            hud_1.setString(ss_1.str());
-            //player 2
-            ss_2 << "Score:" << score_2 << " Lives:" << lives_2;
-            hud_2.setString(ss_2.str());
-            // Handle ball hitting the bottom
-            if (ball.getPosition().top > window.getSize().y)
-                {
-                // reverse the ball direction
-                    ball.reboundBottom();
-                // Remove a life
-                    lives_1--;
-                    score_2++;
-                // Check for zero lives
-                    if (lives_1 < 1) 
-                        {
-                            state = State::MENU;
-                        // reset the score
-                            score_1 = 0;
-			    score_2 = 0;
-                        // reset the lives
-                            lives_1 = 3;
-			    lives_2 = 3;
-                        }
-                }
-                // Handle ball hitting top
-            if (ball.getPosition().top < 0)
-                {
-                    ball.reboundBatOrTopMultiplayer();/******************************************************************/
-                // Add a point to the players score
-                    score_1++;
-                    lives_2--;
-                if (lives_2 < 1) 
-                        {
-                            state = State::MENU;
-                        // reset the score
-                            score_1 = 0;
-			    score_2 = 0;
-                        // reset the lives
-                            lives_1 = 3;
-			    lives_2 = 3;
-                            
-                        }
-                }
-                // Handle ball hitting sides
-            if (ball.getPosition().left < 0 ||ball.getPosition().left + ball.getPosition().width> window.getSize().x)
-                {
-                    ball.reboundSides();
-                }
-            // Has the ball hit the bat player 1?
-            if (ball.getPosition().intersects(bat_1.getPosition()))
-                {
-                // Hit detected so reverse the ball and score a point
-                    ball.reboundBatOrTop();
-                }
-            // Has the ball hit the bat player 2?
-            if (ball.getPosition().intersects(bat_2.getPosition()))
-                {
-                // Hit detected so reverse the ball and score a point
-                    ball.reboundBatOrTop();
-                }
-
-
-            /*
-            **********************************************
-            ****** Draw the bat, the ball and the HUD*****
-            **********************************************
-            */
-            window.clear();
-            window.draw(hud_1);/*player 1*/
-            window.draw(hud_2);/*player 2*/
-            window.draw(bat_1.getShape());//first player 
-            window.draw(bat_2.getShape());//second player 
-            window.draw(ball.getShape());
-            window.display();
-
-        }/*******end Multiplayer mode********/ 
         }
 
-    return 0;
+        // Handle the player quitting
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
+            window.close();
+
+        /******* MENU STATE *******/
+        if (state == State::MENU) {
+            window.clear();
+            window.draw(GameMode); // draw menu to the screen
+            window.display();      // Required to display rendered content
+            continue;
+        }
+
+        // Update the delta time
+        sf::Time dt = clock.restart();
+        Time_elapsed += dt.asSeconds();
+
+        /******* SINGLE PLAYER MODE *******/
+        if (state == State::SINGLEPLAYER) {
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left)) {
+                bat_1.moveLeft();
+                if (bat_1.getPosition().left < 0)
+                    bat_1.stopLeft();
+            } else {
+                bat_1.stopLeft();
+            }
+
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right)) {
+                bat_1.moveRight();
+                if (bat_1.getPosition().left + bat_1.getPosition().width > window.getSize().x)
+                    bat_1.stopRight();
+            } else {
+                bat_1.stopRight();
+            }
+
+            bat_1.update(dt);
+            ball.update(dt);
+
+            std::stringstream ss_1;
+            ss_1 << "Score:" << score_1 << " Lives:" << lives_1;
+            hud_1.setString(ss_1.str());
+
+            if (ball.getPosition().top > window.getSize().y) {
+                ball.reboundBottom();
+                lives_1--;
+                if (lives_1 < 1) {
+                    state = State::MENU;
+                    score_1 = 0;
+                    lives_1 = 3;
+                }
+            }
+
+            if (ball.getPosition().top < 0) {
+                ball.reboundBatOrTop();
+                if (Time_elapsed > 1)
+                    score_1++;
+            }
+
+            if (ball.getPosition().left < 0 || ball.getPosition().left + ball.getPosition().width > window.getSize().x)
+                ball.reboundSides();
+
+            if (ball.getPosition().findIntersection(bat_1.getPosition()))
+                ball.reboundBatOrTop();
+
+            /*
+            **********************************************
+            ****** Draw the bat, the ball and the HUD*****
+            **********************************************
+            */
+            window.clear();
+            window.draw(hud_1);
+            window.draw(bat_1.getShape());
+            window.draw(ball.getShape());
+            window.display();
+        }
+
+        /******* MULTIPLAYER MODE *******/
+        if (state == State::MULTIPLAYER) {
+            auto handleBat = [&](Bat& bat, sf::Keyboard::Key left, sf::Keyboard::Key right) {
+                if (sf::Keyboard::isKeyPressed(left)) {
+                    bat.moveLeft();
+                    if (bat.getPosition().left < 0)
+                        bat.stopLeft();
+                } else {
+                    bat.stopLeft();
+                }
+
+                if (sf::Keyboard::isKeyPressed(right)) {
+                    bat.moveRight();
+                    if (bat.getPosition().left + bat.getPosition().width > window.getSize().x)
+                        bat.stopRight();
+                } else {
+                    bat.stopRight();
+                }
+            };
+
+            handleBat(bat_1, sf::Keyboard::Key::Left, sf::Keyboard::Key::Right);
+            handleBat(bat_2, sf::Keyboard::Key::Q, sf::Keyboard::Key::D);
+
+            bat_1.update(dt);
+            bat_2.update(dt);
+            ball.update(dt);
+
+            std::stringstream ss_1, ss_2;
+            ss_1 << "Score:" << score_1 << " Lives:" << lives_1;
+            ss_2 << "Score:" << score_2 << " Lives:" << lives_2;
+            hud_1.setString(ss_1.str());
+            hud_2.setString(ss_2.str());
+
+            if (ball.getPosition().top > window.getSize().y) {
+                ball.reboundBottom();
+                lives_1--;
+                score_2++;
+                if (lives_1 < 1) {
+                    state = State::MENU;
+                    score_1 = score_2 = 0;
+                    lives_1 = lives_2 = 3;
+                }
+            }
+
+            if (ball.getPosition().top < 0) {
+                ball.reboundBatOrTopMultiplayer(); // for multiplayer mode
+                score_1++;
+                lives_2--;
+                if (lives_2 < 1) {
+                    state = State::MENU;
+                    score_1 = score_2 = 0;
+                    lives_1 = lives_2 = 3;
+                }
+            }
+
+            if (ball.getPosition().left < 0 || ball.getPosition().left + ball.getPosition().width > window.getSize().x)
+                ball.reboundSides();
+
+            if (ball.getPosition().findIntersection(bat_1.getPosition()))
+                ball.reboundBatOrTop();
+            if (ball.getPosition().findIntersection(bat_2.getPosition()))
+                ball.reboundBatOrTop();
+
+            /*
+            **********************************************
+            ****** Draw the bat, the ball and the HUD*****
+            **********************************************
+            */
+            window.clear();
+            window.draw(hud_1);
+            window.draw(hud_2);
+            window.draw(bat_1.getShape());
+            window.draw(bat_2.getShape());
+            window.draw(ball.getShape());
+            window.display();
+        }
     }
+
+    return 0;
+}
