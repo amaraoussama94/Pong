@@ -11,6 +11,10 @@ sf::FloatRect Bat::getPosition() const {
     return m_Shape.getGlobalBounds();
 }
 
+sf::FloatRect Bat::getGlobalBounds() const {
+    return m_Shape.getGlobalBounds();
+}
+
 const sf::RectangleShape& Bat::getShape() const {
     return m_Shape;
 }
