@@ -103,7 +103,9 @@ $(SFML_INSTALL_DIR)/lib/libsfml-graphics.a:
 		$(CMAKE_ENV)
 	$(MAKE) -C $(SFML_BUILD_DIR)
 	$(MAKE) -C $(SFML_BUILD_DIR) install
-
+	@echo "Contents of SFML install bin directory:"
+	@ls -l $(SFML_INSTALL_DIR)/bin || echo "No DLLs found"
+	
 # Compiles each .cpp file into a .o object file
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(BUILD_DIR)
