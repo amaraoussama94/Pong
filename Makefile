@@ -105,7 +105,7 @@ $(SFML_INSTALL_DIR)/lib/libsfml-graphics.a:
 	$(MAKE) -C $(SFML_BUILD_DIR) install
 	@echo "Contents of SFML install bin directory:"
 	@ls -l $(SFML_INSTALL_DIR)/bin || echo "No DLLs found"
-	
+
 # Compiles each .cpp file into a .o object file
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(BUILD_DIR)
@@ -115,8 +115,11 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
 $(EXE): $(OBJECTS)
 	@mkdir -p $(BIN_DIR)
 	$(CXX) $^ -o $@ $(LDFLAGS)
+	@echo "Executable built at: $(EXE)"
+	@ls -l $(EXE) || echo "Executable not found"
 	$(COPY_DLLS)
-
+	@echo "Contents of bin directory after copying DLLs:"
+	@ls -l $(BIN_DIR)
 # Deletes your object files and final binary
 clean:
 	rm -rf $(BUILD_DIR) $(BIN_DIR)

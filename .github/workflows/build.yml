@@ -88,13 +88,21 @@ jobs:
           export PATH="/mingw64/bin:$PATH"
           make
 
-      - name: Upload binary and DLLs
+      - name: Stage build artifacts
+        shell: msys2 {0}
+        run: |
+          mkdir -p dist
+          cp bin/pong.exe dist/ || echo "No EXE found"
+          cp external/SFML/install/bin/*.dll dist/ || echo "No DLLs found"
+          echo "Contents of dist:"
+          ls -l dist
+
+      - name: Upload Windows artifacts
         uses: actions/upload-artifact@v4
         with:
           name: pong-windows
-          path: |
-            bin/pong.exe
-            external/SFML/install/bin/*.dll
+          path: dist/
+
 
       - name: Clean previous builds
         run: make clean
