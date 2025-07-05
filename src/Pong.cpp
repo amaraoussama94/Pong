@@ -73,17 +73,23 @@ int main() {
             if (event->is<sf::Event::Closed>())
                 window.close();
 
-            if (event->is<sf::Event::KeyPressed>()) {
-                auto key = event->get<sf::Event::KeyPressed>().scancode;
-                if (state == State::MENU) {
-                    if (key == sf::Keyboard::Scancode::Num1)
-                        state = State::SINGLEPLAYER; // change mode to single player
-                    else if (key == sf::Keyboard::Scancode::Num2)
-                        state = State::MULTIPLAYER; // change mode to multiplayer
-                }
-                if (key == sf::Keyboard::Scancode::M)
-                    state = State::MENU; // back to menu
+    if (event->is<sf::Event::KeyPressed>()) {
+        const auto* keyEvent = event->getIf<sf::Event::KeyPressed>();
+        if (keyEvent) {
+            auto key = keyEvent->scancode;
+
+            if (state == State::MENU) {
+                if (key == sf::Keyboard::Scancode::Num1)
+                    state = State::SINGLEPLAYER; // change mode to single player
+                else if (key == sf::Keyboard::Scancode::Num2)
+                    state = State::MULTIPLAYER; // change mode to multiplayer
             }
+
+            if (key == sf::Keyboard::Scancode::M)
+                state = State::MENU; // back to menu
+        }
+}
+
         }
 
         // Handle the player quitting
@@ -105,10 +111,12 @@ int main() {
         /******* SINGLE PLAYER MODE *******/
         if (state == State::SINGLEPLAYER) {
             auto batBounds = bat_1.getGlobalBounds();
+            auto batPos = batBounds.position;
+            auto batSize = batBounds.size;
 
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left)) {
                 bat_1.moveLeft();
-                if (batBounds.left < 0)
+                if (batPos.x < 0)
                     bat_1.stopLeft();
             } else {
                 bat_1.stopLeft();
@@ -116,7 +124,7 @@ int main() {
 
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right)) {
                 bat_1.moveRight();
-                if (batBounds.left + batBounds.width > window.getSize().x)
+                if (batPos.x + batSize.x > window.getSize().x)
                     bat_1.stopRight();
             } else {
                 bat_1.stopRight();
@@ -130,8 +138,10 @@ int main() {
             hud_1.setString(ss_1.str());
 
             auto ballBounds = ball.getGlobalBounds();
+            auto ballPos = ballBounds.position;
+            auto ballSize = ballBounds.size;
 
-            if (ballBounds.top > window.getSize().y) {
+            if (ballPos.y > window.getSize().y) {
                 ball.reboundBottom();
                 lives_1--;
                 if (lives_1 < 1) {
@@ -141,23 +151,18 @@ int main() {
                 }
             }
 
-            if (ballBounds.top < 0) {
+            if (ballPos.y < 0) {
                 ball.reboundBatOrTop();
                 if (Time_elapsed > 1)
                     score_1++;
             }
 
-            if (ballBounds.left < 0 || ballBounds.left + ballBounds.width > window.getSize().x)
+            if (ballPos.x < 0 || ballPos.x + ballSize.x > window.getSize().x)
                 ball.reboundSides();
 
-            if (ball.getGlobalBounds().intersects(bat_1.getGlobalBounds()))
+            if (ball.getGlobalBounds().findIntersection(bat_1.getGlobalBounds()))
                 ball.reboundBatOrTop();
 
-            /*
-            **********************************************
-            ****** Draw the bat, the ball and the HUD*****
-            **********************************************
-            */
             window.clear();
             window.draw(hud_1);
             window.draw(bat_1.getShape());
@@ -167,27 +172,45 @@ int main() {
 
         /******* MULTIPLAYER MODE *******/
         if (state == State::MULTIPLAYER) {
-            auto handleBat = [&](Bat& bat, sf::Keyboard::Key left, sf::Keyboard::Key right) {
-                auto bounds = bat.getGlobalBounds();
-                if (sf::Keyboard::isKeyPressed(left)) {
-                    bat.moveLeft();
-                    if (bounds.left < 0)
-                        bat.stopLeft();
-                } else {
-                    bat.stopLeft();
-                }
+            auto bat1Bounds = bat_1.getGlobalBounds();
+            auto bat1Pos = bat1Bounds.position;
+            auto bat1Size = bat1Bounds.size;
 
-                if (sf::Keyboard::isKeyPressed(right)) {
-                    bat.moveRight();
-                    if (bounds.left + bounds.width > window.getSize().x)
-                        bat.stopRight();
-                } else {
-                    bat.stopRight();
-                }
-            };
+            auto bat2Bounds = bat_2.getGlobalBounds();
+            auto bat2Pos = bat2Bounds.position;
+            auto bat2Size = bat2Bounds.size;
 
-            handleBat(bat_1, sf::Keyboard::Key::Left, sf::Keyboard::Key::Right);
-            handleBat(bat_2, sf::Keyboard::Key::Q, sf::Keyboard::Key::D);
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left)) {
+                bat_1.moveLeft();
+                if (bat1Pos.x < 0)
+                    bat_1.stopLeft();
+            } else {
+                bat_1.stopLeft();
+            }
+
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right)) {
+                bat_1.moveRight();
+                if (bat1Pos.x + bat1Size.x > window.getSize().x)
+                    bat_1.stopRight();
+            } else {
+                bat_1.stopRight();
+            }
+
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Q)) {
+                bat_2.moveLeft();
+                if (bat2Pos.x < 0)
+                    bat_2.stopLeft();
+            } else {
+                bat_2.stopLeft();
+            }
+
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)) {
+                bat_2.moveRight();
+                if (bat2Pos.x + bat2Size.x > window.getSize().x)
+                    bat_2.stopRight();
+            } else {
+                bat_2.stopRight();
+            }
 
             bat_1.update(dt);
             bat_2.update(dt);
@@ -200,8 +223,10 @@ int main() {
             hud_2.setString(ss_2.str());
 
             auto ballBounds = ball.getGlobalBounds();
+            auto ballPos = ballBounds.position;
+            auto ballSize = ballBounds.size;
 
-            if (ballBounds.top > window.getSize().y) {
+            if (ballPos.y > window.getSize().y) {
                 ball.reboundBottom();
                 lives_1--;
                 score_2++;
@@ -212,8 +237,8 @@ int main() {
                 }
             }
 
-            if (ballBounds.top < 0) {
-                ball.reboundBatOrTopMultiplayer(); // for multiplayer mode
+            if (ballPos.y < 0) {
+                ball.reboundBatOrTopMultiplayer();
                 score_1++;
                 lives_2--;
                 if (lives_2 < 1) {
@@ -223,19 +248,15 @@ int main() {
                 }
             }
 
-            if (ballBounds.left < 0 || ballBounds.left + ballBounds.width > window.getSize().x)
+            if (ballPos.x < 0 || ballPos.x + ballSize.x > window.getSize().x)
                 ball.reboundSides();
 
-            if (ball.getGlobalBounds().intersects(bat_1.getGlobalBounds()))
-                ball.reboundBatOrTop();
-            if (ball.getGlobalBounds().intersects(bat_2.getGlobalBounds()))
+            if (ball.getGlobalBounds().findIntersection(bat_1.getGlobalBounds()))
                 ball.reboundBatOrTop();
 
-            /*
-            **********************************************
-            ****** Draw the bat, the ball and the HUD*****
-            **********************************************
-            */
+            if (ball.getGlobalBounds().findIntersection(bat_2.getGlobalBounds()))
+                ball.reboundBatOrTop();
+
             window.clear();
             window.draw(hud_1);
             window.draw(hud_2);
@@ -245,6 +266,7 @@ int main() {
             window.display();
         }
     }
+
 
     return 0;
 }

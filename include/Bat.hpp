@@ -13,6 +13,7 @@ public:
     Bat(float startX, float startY);
     sf::FloatRect getPosition() const;
     const sf::RectangleShape& getShape() const;
+    sf::FloatRect getGlobalBounds() const;
     void moveLeft();
     void moveRight();
     void stopLeft();
