@@ -35,9 +35,11 @@ jobs:
   build-linux:
     runs-on: ubuntu-latest
     steps:
+    #fetch-depth: 0 to ensure GitHub fetches the full history required for submodules:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
+          fetch-depth: 0
           submodules: recursive
 
       - name: Install dependencies
@@ -68,7 +70,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
+          fetch-depth: 0
           submodules: recursive
+
 
       - name: Install MSYS2 and dependencies
         uses: msys2/setup-msys2@v2
