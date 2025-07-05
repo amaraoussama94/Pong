@@ -31,14 +31,15 @@ OBJECTS = $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(SOURCES))
 # === OS DETECTION ===
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
-	EXE = $(BIN_DIR)/$(PROJECT_NAME)
-	COPY_DLLS = @true
-	CMAKE_GENERATOR =
+    EXE = $(BIN_DIR)/$(PROJECT_NAME)
+    COPY_DLLS = @true
+    CMAKE_GENERATOR =
+    CMAKE_ENV =
 else
-	EXE = $(BIN_DIR)/$(PROJECT_NAME).exe
-	COPY_DLLS = cp $(SFML_INSTALL_DIR)/bin/*.dll $(BIN_DIR)/
-#	If using MinGW, set the generator to "MinGW Makefiles"
-	CMAKE_GENERATOR = -G "MinGW Makefiles"
+    EXE = $(BIN_DIR)/$(PROJECT_NAME).exe
+    COPY_DLLS = if exist $(SFML_INSTALL_DIR)/bin/*.dll copy $(SFML_INSTALL_DIR)/bin\*.dll $(BIN_DIR)\ >nul
+    CMAKE_GENERATOR = -G "MinGW Makefiles"
+    CMAKE_ENV = -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DCMAKE_MAKE_PROGRAM=mingw32-make
 endif
 
 # === TARGETS ===
@@ -56,38 +57,40 @@ all: $(SFML_INSTALL_DIR)/lib/libsfml-graphics.a $(EXE)
 #    - Uses the appropriate generator (e.g. "MinGW Makefiles" on Windows).
 #    - Sets the install prefix to SFML_INSTALL_DIR to isolate headers/libs/DLLs.
 #    - Enables shared library builds for dynamic linking.
+#    - Explicitly sets compiler and make program on Windows to avoid CMake errors.
 # 3. Builds SFML using make.
 # 4. Installs the built libraries, headers, and DLLs into SFML_INSTALL_DIR.
 #
 # This setup ensures your project uses a clean, portable, and compiler-compatible SFML build.
 
 $(SFML_INSTALL_DIR)/lib/libsfml-graphics.a:
-	@echo " Building SFML..."
-	mkdir -p $(SFML_BUILD_DIR)
-	cd $(SFML_BUILD_DIR) && cmake .. $(CMAKE_GENERATOR) \
-	-DCMAKE_INSTALL_PREFIX=$(abspath $(SFML_INSTALL_DIR)) \
-	-DCMAKE_BUILD_TYPE=Release \
-	-DBUILD_SHARED_LIBS=TRUE
-	$(MAKE) -C $(SFML_BUILD_DIR)
-	$(MAKE) -C $(SFML_BUILD_DIR) install
+    @echo "🔧 Building SFML in $(SFML_BUILD_DIR)..."
+    mkdir -p $(SFML_BUILD_DIR)
+    cd $(SFML_BUILD_DIR) && cmake .. $(CMAKE_GENERATOR) \
+        -DCMAKE_INSTALL_PREFIX=$(abspath $(SFML_INSTALL_DIR)) \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DBUILD_SHARED_LIBS=TRUE \
+        $(CMAKE_ENV)
+    $(MAKE) -C $(SFML_BUILD_DIR)
+    $(MAKE) -C $(SFML_BUILD_DIR) install
 
 # Compiles each .cpp file into a .o object file
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
-	@mkdir -p $(BUILD_DIR)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+    @mkdir -p $(BUILD_DIR)
+    $(CXX) $(CXXFLAGS) -c $< -o $@
 
 # Links all object files into the final executable
 $(EXE): $(OBJECTS)
-	@mkdir -p $(BIN_DIR)
-	$(CXX) $^ -o $@ $(LDFLAGS)
-	$(COPY_DLLS)
+    @mkdir -p $(BIN_DIR)
+    $(CXX) $^ -o $@ $(LDFLAGS)
+    $(COPY_DLLS)
 
 # Deletes your object files and final binary
 clean:
-	rm -rf $(BUILD_DIR) $(BIN_DIR)
+    rm -rf $(BUILD_DIR) $(BIN_DIR)
 
 # Also deletes the SFML build and install directories
 clean-all: clean
-	rm -rf $(SFML_BUILD_DIR) $(SFML_INSTALL_DIR)
+    rm -rf $(SFML_BUILD_DIR) $(SFML_INSTALL_DIR)
 
 .PHONY: all clean clean-all
