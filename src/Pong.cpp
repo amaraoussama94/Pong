@@ -35,18 +35,20 @@ int main() {
     Ball ball(resolution.x / 2, 0);
 
     // HUD setup
-    sf::Text hud_1, hud_2;
+    // HUD setup (SFML 3.0.0 compliant)
     sf::Font font;
-    font.openFromFile("fonts/DS-DIGI.TTF");
+    if (!font.loadFromFile("fonts/DS-DIGI.TTF")) {
+        std::cerr << "Failed to load font: DS-DIGI.TTF" << std::endl;
+        return -1;
+    }
 
-    hud_1.setFont(font);
-    hud_2.setFont(font);
-    hud_1.setCharacterSize(25);
-    hud_2.setCharacterSize(25);
+    sf::Text hud_1("Score: 0", font, 25);
+    sf::Text hud_2("Lives: 3", font, 25);
+
     hud_1.setFillColor(sf::Color::White);
     hud_2.setFillColor(sf::Color::White);
-    hud_1.setPosition(20, resolution.y / 2.0f);
-    hud_2.setPosition(resolution.x - 200, resolution.y / 2.0f);
+    hud_1.setPosition(20.f, resolution.y / 2.0f);
+    hud_2.setPosition(resolution.x - 200.f, resolution.y / 2.0f);
 
     // Clock for delta time
     sf::Clock clock;
