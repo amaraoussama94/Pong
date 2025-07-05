@@ -149,5 +149,8 @@ clean:
 # Also deletes the SFML build and install directories
 clean-all: clean
 	rm -rf $(SFML_BUILD_DIR) $(SFML_INSTALL_DIR)
-
+# === Run the game after building ===
+run: all
+	@echo "Launching $(EXE)..."
+	@$(EXE)
 .PHONY: all clean clean-all
