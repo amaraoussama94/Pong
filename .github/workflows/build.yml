@@ -1,8 +1,29 @@
-## This workflow builds the Pong project for both Linux and Windows using GitHub Actions.
-# It checks out the code, installs dependencies, builds the project, and uploads the resulting binaries 
-name: Build Pong
+# === GitHub Actions Workflow: Cross-Platform Build for Pong ===
+# This workflow automates the build process for the Pong project on both Linux and Windows.
+# It is triggered on every push or pull request to the `main` branch.
+#
+#  What it does:
+# 1. Checks out the repository, including the SFML submodule.
+# 2. Installs all necessary system dependencies for building SFML and the Pong game.
+# 3. Builds the project using the Makefile (which also builds SFML from source).
+# 4. Uploads the resulting binaries (and DLLs on Windows) as downloadable artifacts.
+#
+#  Linux Job:
+# - Uses Ubuntu as the build environment.
+# - Installs development libraries required by SFML (OpenGL, X11, audio, fonts, etc.).
+# - Runs `make` to build both SFML and the Pong executable.
+# - Uploads the final binary (`bin/pong`) as an artifact named `pong-linux`.
+#
+# 🪟Windows Job:
+# - Uses Windows with MSYS2 to provide a Unix-like shell and MinGW toolchain.
+# - Installs GCC , Make and CMAKE via MSYS2.
+# - Runs `make` inside the MSYS2 shell to build SFML and Pong.
+# - Uploads the final executable (`bin/pong.exe`) and all required DLLs as `pong-windows`.
+#
+# This setup ensures consistent, portable builds across platforms and simplifies distribution.
 
-#Build Trigger
+name: Build Pong
+#
 on:
   push:
     branches: [ main ]
@@ -10,16 +31,14 @@ on:
     branches: [ main ]
 
 jobs:
-# Build jobs for Linux , 
   build-linux:
     runs-on: ubuntu-latest
     steps:
-    # Checkout code
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           submodules: recursive
-# Install dependencies and build project
+
       - name: Install dependencies
         run: |
           sudo apt-get update
@@ -29,13 +48,13 @@ jobs:
 
       - name: Build project
         run: make
-# Upload the binary
+
       - name: Upload binary
         uses: actions/upload-artifact@v4
         with:
           name: pong-linux
           path: bin/pong
-# Build jobs for  Windows
+
   build-windows:
     runs-on: windows-latest
     steps:
@@ -43,28 +62,23 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: recursive
-# Install MSYS2 and dependencies
-      - name: Install MSYS2
+
+      - name: Install MSYS2 and dependencies
         uses: msys2/setup-msys2@v2
         with:
           update: true
           install: >-
-            make
             mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-make
+            mingw-w64-x86_64-pkg-config
 
-      - name: Install CMake 3.27.9
-        run: |
-          curl -LO https://github.com/Kitware/CMake/releases/download/v3.27.9/cmake-3.27.9-windows-x86_64.zip
-          tar -xf cmake-3.27.9-windows-x86_64.zip
-          echo "CMAKE_BIN_PATH=$(pwd)/cmake-3.27.9-windows-x86_64/bin" >> $GITHUB_ENV
-
-# build project 
       - name: Build project
         shell: msys2 {0}
         run: |
-          export PATH="$PWD/cmake-3.27.9-windows-x86_64/bin:$PATH"
+          export PATH="/mingw64/bin:$PATH"
           make
-# Upload the binary and DLLs
+
       - name: Upload binary and DLLs
         uses: actions/upload-artifact@v4
         with:

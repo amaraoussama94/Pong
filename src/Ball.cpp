@@ -1,58 +1,46 @@
 #include "Ball.hpp"
-// This the constructor function
 
 Ball::Ball(float startX, float startY)
-    {
-        m_Position.x = startX;
-        m_Position.y = startY;
-        m_Shape.setSize(sf::Vector2f(10, 10));
-        m_Shape.setPosition(m_Position);
-    }
+    : m_Position(startX, startY)
+{
+    m_Shape.setSize(sf::Vector2f(10.f, 10.f));
+    m_Shape.setPosition(m_Position);
+}
 
-FloatRect Ball::getPosition()
-    {
-        return m_Shape.getGlobalBounds();
-    }
+sf::FloatRect Ball::getPosition() const {
+    return m_Shape.getGlobalBounds();
+}
 
-RectangleShape Ball::getShape()
-    {
-        return m_Shape;
-    }
+const sf::RectangleShape& Ball::getShape() const {
+    return m_Shape;
+}
 
-float Ball::getXVelocity()
-    {
-        return m_DirectionX;
-    }
+float Ball::getXVelocity() const {
+    return m_DirectionX;
+}
 
-void Ball::reboundSides()
-    {
-        m_DirectionX = -m_DirectionX;
-    }
+void Ball::reboundSides() {
+    m_DirectionX = -m_DirectionX;
+}
 
-void Ball::reboundBatOrTop()
-    {
-        m_DirectionY = -m_DirectionY;
-    }
+void Ball::reboundBatOrTop() {
+    m_DirectionY = -m_DirectionY;
+}
 
-void Ball::reboundBottom()
-    {
-        m_Position.y = 100;
-        m_Position.x = 500;
-        m_DirectionY = m_DirectionY;
-    }
+void Ball::reboundBottom() {
+    m_Position = {500.f, 100.f};
+    m_DirectionY = -m_DirectionY;
+    m_Shape.setPosition(m_Position);
+}
 
-void Ball::reboundBatOrTopMultiplayer()// for multiplayer mode 
-    {
-        m_Position.y = 100;
-        m_Position.x = 500;
-        m_DirectionY = -m_DirectionY;
-    }
+void Ball::reboundBatOrTopMultiplayer() {
+    m_Position = {500.f, 100.f};
+    m_DirectionY = -m_DirectionY;
+    m_Shape.setPosition(m_Position);
+}
 
-void Ball::update(Time dt)
-    {
-        // Update the ball's position
-        m_Position.y += m_DirectionY * m_Speed * dt.asSeconds();
-        m_Position.x += m_DirectionX * m_Speed * dt.asSeconds();
-        // Move the ball
-        m_Shape.setPosition(m_Position);
-    }
+void Ball::update(sf::Time dt) {
+    m_Position.x += m_DirectionX * m_Speed * dt.asSeconds();
+    m_Position.y += m_DirectionY * m_Speed * dt.asSeconds();
+    m_Shape.setPosition(m_Position);
+}

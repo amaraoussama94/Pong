@@ -1,90 +1,126 @@
 # === CONFIGURATION ===
-#Sets the name of your final executable
+# Sets the name of your final executable
 PROJECT_NAME = pong
 SRC_DIR = src
 INC_DIR = include
 BUILD_DIR = build
-#where the final executable goes
 BIN_DIR = bin
+
+# SFML submodule and build paths
 SFML_DIR = external/SFML
-#where SFML will be built using CMake
 SFML_BUILD_DIR = $(SFML_DIR)/build
+SFML_INSTALL_DIR = $(SFML_DIR)/install
+
 # Compiler configuration
 CXX = g++
 
 # Compiler flags
-#-std=c++17: use C++17 standard
-#-Wall: enable all warnings
-#-I...: include SFML headers
-CXXFLAGS = -std=c++17 -Wall -I$(SFML_DIR)/include -I$(INC_DIR)
+# -std=c++17: use C++17 standard
+# -Wall: enable all warnings
+# -I...: include SFML and project headers
+CXXFLAGS = -std=c++17 -Wall -I$(SFML_INSTALL_DIR)/include -I$(INC_DIR)
 
 # Linker flags
-LDFLAGS = 
-# finds all .cpp files in src/
+LDFLAGS = -L$(SFML_INSTALL_DIR)/lib -lsfml-graphics -lsfml-window -lsfml-system
+
+# Finds all .cpp files in src/
 SOURCES = $(wildcard $(SRC_DIR)/*.cpp)
-#SOURCES = $(shell find $(SRC_DIR) -name '*.cpp')
-#maps each .cpp file to a corresponding .o file in build/
+# Maps each .cpp file to a corresponding .o file in build/
 OBJECTS = $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(SOURCES))
 
 # === OS DETECTION ===
-#Detects the operating system using uname
 UNAME_S := $(shell uname -s)
-#SFML_LIB_DIR: where to find the built SFML .lib or .a files
+
 ifeq ($(UNAME_S),Linux)
-	SFML_LIBS = -lsfml-graphics -lsfml-window -lsfml-system
-	SFML_LIB_DIR = $(SFML_BUILD_DIR)/lib
 	EXE = $(BIN_DIR)/$(PROJECT_NAME)
 	COPY_DLLS = @true
-	CMAKE_FLAGS = -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=TRUE
-	CMAKE_GENERATOR =
-else
-	SFML_LIBS = -lsfml-graphics -lsfml-window -lsfml-system
-	SFML_LIB_DIR = $(SFML_BUILD_DIR)/lib
+	CMAKE_GENERATOR = -G "Unix Makefiles"
+	CMAKE_ENV =
+else ifeq ($(findstring MINGW,$(UNAME_S)),MINGW)
 	EXE = $(BIN_DIR)/$(PROJECT_NAME).exe
-#If on Windows, copy the SFML DLLs to the bin directory
-	COPY_DLLS = cp $(SFML_BIN_DIR)/*.dll $(BIN_DIR)/
-#works with MSYS2 or MinGW to avoid fail related	to CMake policies
-	CMAKE_FLAGS = -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=TRUE -DCMAKE_POLICY_VERSION=3.5
-#fix :The issue is that CMake on Windows is generating build files for a different generator 
-#(like Ninja or Visual Studio), but your Makefile expects Makefiles. To fix this, 
-#you need to explicitly tell CMake to use the MinGW Makefiles generator when building SFML on Windows.
+	COPY_DLLS = if exist $(SFML_INSTALL_DIR)/bin/*.dll copy $(SFML_INSTALL_DIR)/bin\*.dll $(BIN_DIR)\ >nul
 	CMAKE_GENERATOR = -G "MinGW Makefiles"
+	CMAKE_ENV = -DCMAKE_MAKE_PROGRAM=mingw32-make
+
+else ifeq ($(findstring MSYS,$(UNAME_S)),MSYS)
+	EXE = $(BIN_DIR)/$(PROJECT_NAME).exe
+	COPY_DLLS = cp $(SFML_INSTALL_DIR)/bin/*.dll $(BIN_DIR) 2>/dev/null || true
+	CMAKE_GENERATOR = -G "Unix Makefiles"
+	CMAKE_ENV =
+else
+	$(error Unsupported platform: $(UNAME_S))
 endif
 
+#	=== COMPILER AND MAKE PROGRAMS ===
+# This section sets the C++ compiler, C compiler, and make program based on the detected OS.
+# It ensures the correct tools are used for building the project, especially on Windows with MinGW
+ifeq ($(findstring MINGW,$(UNAME_S)),MINGW)
+	CXX := $(shell which g++)
+	CC := $(shell which gcc)
+	MAKE_PROGRAM := $(shell which mingw32-make)
+	CMAKE_ENV = -DCMAKE_C_COMPILER=$(CC) -DCMAKE_CXX_COMPILER=$(CXX) -DCMAKE_MAKE_PROGRAM=$(MAKE_PROGRAM)
+endif
+
+#	=== ENVIRONMENT CHECK ===
+# This target prints environment variables and compiler settings for debugging.
+# It helps verify that the Makefile is using the correct tools and paths.
+check-env:
+	@echo "UNAME_S = $(UNAME_S)"
+	@echo "MSYSTEM = $(shell echo $$MSYSTEM)"
+	@echo "CXX = $(CXX)"
+	@echo "CC = $(CC)"
+	@echo "PATH = $$PATH"
+
+
 # === TARGETS ===
-#The default target. It builds SFML first, then your game.
-all: $(SFML_BUILD_DIR)/lib/libsfml-graphics.a $(EXE)
+# The default target. It builds SFML first, then your game.
+all: $(SFML_INSTALL_DIR)/lib/libsfml-graphics.a $(EXE)
 
-#Builds SFML if it hasn’t been built yet:
-$(SFML_BUILD_DIR)/lib/libsfml-graphics.a:
-	@echo " Building SFML..."
+# Builds SFML if it hasn’t been built yet
+# === Build and Install SFML from Source ===
+# This rule ensures SFML is built and installed before compiling the game.
+# It triggers when the static graphics library is missing from the install directory.
+# 
+# Steps:
+# 1. Creates the SFML build directory if it doesn't exist.
+# 2. Runs CMake to configure the SFML project:
+#    - Uses the appropriate generator (e.g. "MinGW Makefiles" on Windows).
+#    - Sets the install prefix to SFML_INSTALL_DIR to isolate headers/libs/DLLs.
+#    - Enables shared library builds for dynamic linking.
+#    - Explicitly sets compiler and make program on Windows to avoid CMake errors.
+# 3. Builds SFML using make.
+# 4. Installs the built libraries, headers, and DLLs into SFML_INSTALL_DIR.
+#
+# This setup ensures your project uses a clean, portable, and compiler-compatible SFML build.
+
+$(SFML_INSTALL_DIR)/lib/libsfml-graphics.a:
+	@echo "Building SFML in $(SFML_BUILD_DIR)..."
 	mkdir -p $(SFML_BUILD_DIR)
-	cd $(SFML_BUILD_DIR) && cmake .. $(CMAKE_GENERATOR)  $(CMAKE_FLAGS)
+	cd $(SFML_BUILD_DIR) && cmake .. $(CMAKE_GENERATOR) \
+		-DCMAKE_INSTALL_PREFIX=$(abspath $(SFML_INSTALL_DIR)) \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DBUILD_SHARED_LIBS=TRUE \
+		$(CMAKE_ENV)
 	$(MAKE) -C $(SFML_BUILD_DIR)
+	$(MAKE) -C $(SFML_BUILD_DIR) install
 
-
-#Compiles each .cpp file into a .o object file
-#$< is the source file, $@ is the output object file
+# Compiles each .cpp file into a .o object file
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(BUILD_DIR)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-#Links all object files into the final executable
-#$^ is the list of object files
-#-L...: tells the linker where to find SFML libraries
-#$(SFML_LIBS): links against SFML
+# Links all object files into the final executable
 $(EXE): $(OBJECTS)
 	@mkdir -p $(BIN_DIR)
-	$(CXX) $^ -o $@ -L$(SFML_LIB_DIR) $(SFML_LIBS)
+	$(CXX) $^ -o $@ $(LDFLAGS)
 	$(COPY_DLLS)
 
-#Deletes your object files and final binary
+# Deletes your object files and final binary
 clean:
 	rm -rf $(BUILD_DIR) $(BIN_DIR)
 
-#Also deletes the SFML build directory
+# Also deletes the SFML build and install directories
 clean-all: clean
-	rm -rf $(SFML_BUILD_DIR)
+	rm -rf $(SFML_BUILD_DIR) $(SFML_INSTALL_DIR)
 
-#Declares these targets as "phony" (not real files), so Make always runs them when requested
 .PHONY: all clean clean-all
