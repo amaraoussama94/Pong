@@ -51,7 +51,7 @@ else
 	$(error Unsupported platform: $(UNAME_S))
 endif
 
-#	=== COMPILER AND MAKE PROGRAMS ===
+# === COMPILER AND MAKE PROGRAMS ===
 # This section sets the C++ compiler, C compiler, and make program based on the detected OS.
 # It ensures the correct tools are used for building the project, especially on Windows with MinGW
 ifeq ($(findstring MINGW,$(UNAME_S)),MINGW)
@@ -61,7 +61,7 @@ ifeq ($(findstring MINGW,$(UNAME_S)),MINGW)
 	CMAKE_ENV = -DCMAKE_C_COMPILER=$(CC) -DCMAKE_CXX_COMPILER=$(CXX) -DCMAKE_MAKE_PROGRAM=$(MAKE_PROGRAM)
 endif
 
-#	=== ENVIRONMENT CHECK ===
+# === ENVIRONMENT CHECK ===
 # This target prints environment variables and compiler settings for debugging.
 # It helps verify that the Makefile is using the correct tools and paths.
 check-env:
@@ -71,15 +71,14 @@ check-env:
 	@echo "CC = $(CC)"
 	@echo "PATH = $$PATH"
 
-
 # === TARGETS ===
 # The default target. It builds SFML first, then your game.
-all: $(SFML_INSTALL_DIR)/lib/libsfml-graphics.a $(EXE)
+# Updated to trigger SFML build based on the presence of either static or shared libraries.
+all: $(SFML_INSTALL_DIR)/lib/libsfml-graphics.a $(SFML_INSTALL_DIR)/bin/sfml-graphics-3.dll $(EXE)
 
-# Builds SFML if it hasn’t been built yet
 # === Build and Install SFML from Source ===
 # This rule ensures SFML is built and installed before compiling the game.
-# It triggers when the static graphics library is missing from the install directory.
+# It triggers when either the static or shared graphics library is missing from the install directory.
 # 
 # Steps:
 # 1. Creates the SFML build directory if it doesn't exist.
@@ -93,7 +92,7 @@ all: $(SFML_INSTALL_DIR)/lib/libsfml-graphics.a $(EXE)
 #
 # This setup ensures your project uses a clean, portable, and compiler-compatible SFML build.
 
-$(SFML_INSTALL_DIR)/lib/libsfml-graphics.a:
+$(SFML_INSTALL_DIR)/lib/libsfml-graphics.a $(SFML_INSTALL_DIR)/bin/sfml-graphics-3.dll:
 	@echo "Building SFML in $(SFML_BUILD_DIR)..."
 	mkdir -p $(SFML_BUILD_DIR)
 	cd $(SFML_BUILD_DIR) && cmake .. $(CMAKE_GENERATOR) \
@@ -120,6 +119,7 @@ $(EXE): $(OBJECTS)
 	$(COPY_DLLS)
 	@echo "Contents of bin directory after copying DLLs:"
 	@ls -l $(BIN_DIR)
+
 # Deletes your object files and final binary
 clean:
 	rm -rf $(BUILD_DIR) $(BIN_DIR)
