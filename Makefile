@@ -9,7 +9,8 @@ BIN_DIR = bin
 # SFML submodule and build paths
 SFML_DIR = external/SFML
 SFML_BUILD_DIR = $(SFML_DIR)/build
-SFML_INSTALL_DIR = $(SFML_DIR)/install
+SFML_INSTALL_DIR = external/SFMLexternal/SFML/install
+#SFML_INSTALL_DIR = $(SFML_DIR)/install
 
 # Compiler configuration
 CXX = g++
@@ -29,6 +30,7 @@ SOURCES = $(wildcard $(SRC_DIR)/*.cpp)
 OBJECTS = $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(SOURCES))
 #	CMake flags
 CMAKE_FLAGS += --no-warn-unused-cli
+CMAKE_FLAGS += -DCMAKE_SH="/usr/bin/bash"
 
 
 # === OS DETECTION ===
@@ -40,9 +42,10 @@ ifeq ($(UNAME_S),Linux)
 	COPY_DLLS = @true
 	CMAKE_GENERATOR = -G "Unix Makefiles"
 	CMAKE_ENV =
+	MAKE_PROGRAM := $(shell which make)
 else ifeq ($(findstring MINGW,$(UNAME_S)),MINGW)
 	EXE = $(BIN_DIR)/$(PROJECT_NAME).exe
-	COPY_DLLS = if exist $(SFML_INSTALL_DIR)/bin/*.dll copy $(SFML_INSTALL_DIR)/bin\*.dll $(BIN_DIR)\ >nul
+	COPY_DLLS = cp -u $(SFML_INSTALL_DIR)/bin/*.dll $(BIN_DIR) 2>/dev/null || true
 	CMAKE_GENERATOR = -G "MinGW Makefiles"
 else ifeq ($(findstring MSYS,$(UNAME_S)),MSYS)
 	EXE = $(BIN_DIR)/$(PROJECT_NAME).exe
@@ -59,7 +62,7 @@ ifeq ($(findstring MINGW,$(UNAME_S)),MINGW)
 	CXX := $(shell which g++)
 	CC := $(shell which gcc)
 	MAKE_PROGRAM := $(shell which mingw32-make)
-	CMAKE_ENV = CMAKE_POLICY_VERSION_MINIMUM=3.5 CC=$(CC) CXX=$(CXX) CMAKE_MAKE_PROGRAM=$(MAKE_PROGRAM)
+	CMAKE_ENV = CMAKE_POLICY_VERSION_MINIMUM=3.5 CC=$(CC) CXX=$(CXX) CMAKE_MAKE_PROGRAM=$(MAKE_PROGRAM) SHELL=/usr/bin/bash
 endif
 
 # === ENVIRONMENT CHECK ===
@@ -102,8 +105,8 @@ $(SFML_INSTALL_DIR)/lib/libsfml-graphics.a $(SFML_INSTALL_DIR)/bin/sfml-graphics
 		-DBUILD_SHARED_LIBS=TRUE \
 		-DSFML_USE_SYSTEM_FREETYPE=TRUE \
 		$(CMAKE_FLAGS) 
-	$(MAKE) -C $(SFML_BUILD_DIR)
-	$(MAKE) -C $(SFML_BUILD_DIR) install
+	$(MAKE_PROGRAM) -C $(SFML_BUILD_DIR)
+	$(MAKE_PROGRAM) -C $(SFML_BUILD_DIR) install
 	@echo "Contents of SFML install bin directory:"
 	@ls -l $(SFML_INSTALL_DIR)/bin || echo "No DLLs found"
 
@@ -128,6 +131,7 @@ $(EXE): $(OBJECTS)
 	$(CXX) $^ -o $@ $(LDFLAGS)
 	@echo "Executable built at: $(EXE)"
 	@ls -l $(EXE) || echo "Executable not found"
+	@echo "DLLS path: $(COPY_DLLS)"
 	$(COPY_DLLS)
 	@echo "Contents of bin directory after copying DLLs:"
 	@ls -l $(BIN_DIR)

@@ -119,7 +119,7 @@ jobs:
         shell: msys2 {0}
         run: |
           export PATH="/mingw64/bin:$PATH"
-          make
+          make VERBOSE=1
 
       # === STAGE ARTIFACTS FOR UPLOAD ===
       - name: Stage build artifacts

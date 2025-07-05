@@ -7,6 +7,10 @@ Ball::Ball(float startX, float startY)
     m_Shape.setPosition(m_Position);
 }
 
+sf::FloatRect Ball::getGlobalBounds() const {
+    return m_Shape.getGlobalBounds();
+}
+
 sf::FloatRect Ball::getPosition() const {
     return m_Shape.getGlobalBounds();
 }
