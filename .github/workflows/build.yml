@@ -22,8 +22,9 @@
 #
 # This setup ensures consistent, portable builds across platforms and simplifies distribution.
 
+
 name: Build Pong
-#
+
 on:
   push:
     branches: [ main ]
@@ -59,7 +60,7 @@ jobs:
         run: make clean
 
       - name: Clean all (including SFML)
-        run: make clean-all          
+        run: make clean-all
 
   build-windows:
     runs-on: windows-latest
@@ -79,8 +80,33 @@ jobs:
             mingw-w64-x86_64-make
             mingw-w64-x86_64-pkg-config
             make
+
       - name: Check environment
         run: make check-env
+
+      # === 🆕 VERBOSE BUILD OUTPUT ===
+      - name: Run make with verbose output
+        shell: msys2 {0}
+        run: |
+          export PATH="/mingw64/bin:$PATH"
+          make VERBOSE=1
+
+      # === 🆕 INSPECT SFML INSTALL OUTPUT ===
+      - name: Inspect SFML install output
+        shell: msys2 {0}
+        run: |
+          echo "=== SFML install/lib ==="
+          ls -l external/SFML/install/lib || echo "No lib directory"
+          echo "=== SFML install/bin ==="
+          ls -l external/SFML/install/bin || echo "No DLLs found"
+
+      # === 🆕 INSPECT BIN DIRECTORY ===
+      - name: Inspect bin directory
+        shell: msys2 {0}
+        run: |
+          echo "=== bin/ ==="
+          ls -l bin || echo "bin/ not found"
+          file bin/pong.exe || echo "pong.exe not found or not a valid file"
 
       - name: Build project
         shell: msys2 {0}
@@ -88,6 +114,7 @@ jobs:
           export PATH="/mingw64/bin:$PATH"
           make
 
+      # === 🆕 STAGE ARTIFACTS FOR UPLOAD ===
       - name: Stage build artifacts
         shell: msys2 {0}
         run: |
@@ -103,9 +130,8 @@ jobs:
           name: pong-windows
           path: dist/
 
-
       - name: Clean previous builds
         run: make clean
-      
+
       - name: Clean all (including SFML)
         run: make clean-all
