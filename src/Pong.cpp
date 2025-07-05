@@ -5,6 +5,7 @@
 #include <fstream>
 #include <cstdlib>
 #include <optional>
+#include <iostream>
 
 int main() {
     // The game will always be in one of three states
@@ -34,7 +35,6 @@ int main() {
     Bat bat_2(resolution.x / 2, 20);               // Player 2 at top
     Ball ball(resolution.x / 2, 0);
 
-    // HUD setup
     // HUD setup (SFML 3.0.0 compliant)
     sf::Font font;
     if (!font.openFromFile("fonts/DS-DIGI.TTF")) {
@@ -42,25 +42,23 @@ int main() {
         return -1;
     }
 
-    sf::Text hud_1("Score: 0", font, 25);
-    sf::Text hud_2("Lives: 3", font, 25);
+    sf::Text hud_1(font, "Score: 0", 25);
+    sf::Text hud_2(font, "Lives: 3", 25);
 
     hud_1.setFillColor(sf::Color::White);
     hud_2.setFillColor(sf::Color::White);
-    hud_1.setPosition(20.f, resolution.y / 2.0f);
-    hud_2.setPosition(resolution.x - 200.f, resolution.y / 2.0f);
-
+    hud_1.setPosition(sf::Vector2f(20.f, resolution.y / 2.0f));
+    hud_2.setPosition(sf::Vector2f(resolution.x - 200.f, resolution.y / 2.0f));
 
     // Clock for delta time
     sf::Clock clock;
     float Time_elapsed = 0;
 
     // Menu text
-    sf::Text GameMode;
-    GameMode.setFont(font);
+    sf::Text GameMode(font);
     GameMode.setCharacterSize(80);
     GameMode.setFillColor(sf::Color::White);
-    GameMode.setPosition(resolution.x / 2 - 400, resolution.y / 2 - 100);
+    GameMode.setPosition(sf::Vector2f(resolution.x / 2 - 400, resolution.y / 2 - 100));
     std::stringstream ssGameMode;
     ssGameMode << "1- Single player mode\n2- multiplayer mode";
     GameMode.setString(ssGameMode.str());
@@ -71,13 +69,12 @@ int main() {
         ***** Handle the player input*****
         **********************************
         */
-        sf::Event event;
-        while (window.pollEvent(event)) {
-            if (event.is<sf::Event::Closed>())
+        while (auto event = window.pollEvent()) {
+            if (event->is<sf::Event::Closed>())
                 window.close();
 
-            if (event.is<sf::Event::KeyPressed>()) {
-                auto key = event.get<sf::Event::KeyPressed>().scancode;
+            if (event->is<sf::Event::KeyPressed>()) {
+                auto key = event->get<sf::Event::KeyPressed>().scancode;
                 if (state == State::MENU) {
                     if (key == sf::Keyboard::Scancode::Num1)
                         state = State::SINGLEPLAYER; // change mode to single player
@@ -107,9 +104,11 @@ int main() {
 
         /******* SINGLE PLAYER MODE *******/
         if (state == State::SINGLEPLAYER) {
+            auto batBounds = bat_1.getGlobalBounds();
+
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left)) {
                 bat_1.moveLeft();
-                if (bat_1.getPosition().left < 0)
+                if (batBounds.left < 0)
                     bat_1.stopLeft();
             } else {
                 bat_1.stopLeft();
@@ -117,7 +116,7 @@ int main() {
 
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right)) {
                 bat_1.moveRight();
-                if (bat_1.getPosition().left + bat_1.getPosition().width > window.getSize().x)
+                if (batBounds.left + batBounds.width > window.getSize().x)
                     bat_1.stopRight();
             } else {
                 bat_1.stopRight();
@@ -130,7 +129,9 @@ int main() {
             ss_1 << "Score:" << score_1 << " Lives:" << lives_1;
             hud_1.setString(ss_1.str());
 
-            if (ball.getPosition().top > window.getSize().y) {
+            auto ballBounds = ball.getGlobalBounds();
+
+            if (ballBounds.top > window.getSize().y) {
                 ball.reboundBottom();
                 lives_1--;
                 if (lives_1 < 1) {
@@ -140,16 +141,16 @@ int main() {
                 }
             }
 
-            if (ball.getPosition().top < 0) {
+            if (ballBounds.top < 0) {
                 ball.reboundBatOrTop();
                 if (Time_elapsed > 1)
                     score_1++;
             }
 
-            if (ball.getPosition().left < 0 || ball.getPosition().left + ball.getPosition().width > window.getSize().x)
+            if (ballBounds.left < 0 || ballBounds.left + ballBounds.width > window.getSize().x)
                 ball.reboundSides();
 
-            if (ball.getPosition().findIntersection(bat_1.getPosition()))
+            if (ball.getGlobalBounds().intersects(bat_1.getGlobalBounds()))
                 ball.reboundBatOrTop();
 
             /*
@@ -167,9 +168,10 @@ int main() {
         /******* MULTIPLAYER MODE *******/
         if (state == State::MULTIPLAYER) {
             auto handleBat = [&](Bat& bat, sf::Keyboard::Key left, sf::Keyboard::Key right) {
+                auto bounds = bat.getGlobalBounds();
                 if (sf::Keyboard::isKeyPressed(left)) {
                     bat.moveLeft();
-                    if (bat.getPosition().left < 0)
+                    if (bounds.left < 0)
                         bat.stopLeft();
                 } else {
                     bat.stopLeft();
@@ -177,7 +179,7 @@ int main() {
 
                 if (sf::Keyboard::isKeyPressed(right)) {
                     bat.moveRight();
-                    if (bat.getPosition().left + bat.getPosition().width > window.getSize().x)
+                    if (bounds.left + bounds.width > window.getSize().x)
                         bat.stopRight();
                 } else {
                     bat.stopRight();
@@ -197,7 +199,9 @@ int main() {
             hud_1.setString(ss_1.str());
             hud_2.setString(ss_2.str());
 
-            if (ball.getPosition().top > window.getSize().y) {
+            auto ballBounds = ball.getGlobalBounds();
+
+            if (ballBounds.top > window.getSize().y) {
                 ball.reboundBottom();
                 lives_1--;
                 score_2++;
@@ -208,7 +212,7 @@ int main() {
                 }
             }
 
-            if (ball.getPosition().top < 0) {
+            if (ballBounds.top < 0) {
                 ball.reboundBatOrTopMultiplayer(); // for multiplayer mode
                 score_1++;
                 lives_2--;
@@ -219,12 +223,12 @@ int main() {
                 }
             }
 
-            if (ball.getPosition().left < 0 || ball.getPosition().left + ball.getPosition().width > window.getSize().x)
+            if (ballBounds.left < 0 || ballBounds.left + ballBounds.width > window.getSize().x)
                 ball.reboundSides();
 
-            if (ball.getPosition().findIntersection(bat_1.getPosition()))
+            if (ball.getGlobalBounds().intersects(bat_1.getGlobalBounds()))
                 ball.reboundBatOrTop();
-            if (ball.getPosition().findIntersection(bat_2.getPosition()))
+            if (ball.getGlobalBounds().intersects(bat_2.getGlobalBounds()))
                 ball.reboundBatOrTop();
 
             /*
