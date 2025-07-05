@@ -1,0 +1,74 @@
+## This workflow builds the Pong project for both Linux and Windows using GitHub Actions.
+# It checks out the code, installs dependencies, builds the project, and uploads the resulting binaries 
+name: Build Pong
+
+#Build Trigger
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+# Build jobs for Linux , 
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+    # Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+# Install dependencies and build project
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake g++ make \
+            libx11-dev libxrandr-dev libxcursor-dev libxi-dev libxinerama-dev \
+            libgl1-mesa-dev libudev-dev libopenal-dev libflac-dev libvorbis-dev libfreetype6-dev
+
+      - name: Build project
+        run: make
+# Upload the binary
+      - name: Upload binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: pong-linux
+          path: bin/pong
+# Build jobs for  Windows
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+# Install MSYS2 and dependencies
+      - name: Install MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          update: true
+          install: >-
+            make
+            mingw-w64-x86_64-gcc
+
+      - name: Install CMake 3.27.9
+        run: |
+          curl -LO https://github.com/Kitware/CMake/releases/download/v3.27.9/cmake-3.27.9-windows-x86_64.zip
+          tar -xf cmake-3.27.9-windows-x86_64.zip
+          echo "CMAKE_BIN_PATH=$(pwd)/cmake-3.27.9-windows-x86_64/bin" >> $GITHUB_ENV
+
+# build project 
+      - name: Build project
+        shell: msys2 {0}
+        run: |
+          export PATH="$PWD/cmake-3.27.9-windows-x86_64/bin:$PATH"
+          make
+# Upload the binary and DLLs
+      - name: Upload binary and DLLs
+        uses: actions/upload-artifact@v4
+        with:
+          name: pong-windows
+          path: |
+            bin/pong.exe
+            bin/*.dll

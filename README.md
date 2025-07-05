@@ -17,6 +17,21 @@ L+R key to control 1st player</br>
 Q+D  to control 2nd player</br>
 *Game name: Pong</br>
 *version :1.8</br>
+Pong/
+├── include/         # Header files
+│   ├── Ball.hpp
+│   └── Bat.hpp
+├── src/             # Source files
+│   ├── Ball.cpp
+│   ├── Bat.cpp
+│   └── Pong.cpp     # Contains main()
+├── external/        # SFML submodule
+│   └── SFML/
+├── fonts/           # Assets
+│   └── ...
+├── Game.png         # Game asset
+├── Makefile         # Updated to reflect new paths
+├── README.md
 
 <h3 align="left">The features and objects of a game </h3>  :  
                                     •one player and multiplayer game.</br> 
