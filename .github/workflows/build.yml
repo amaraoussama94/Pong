@@ -73,25 +73,28 @@ jobs:
       - name: Install MSYS2 and dependencies
         uses: msys2/setup-msys2@v2
         with:
-          update: true
           install: >-
             mingw-w64-x86_64-gcc
             mingw-w64-x86_64-cmake
             mingw-w64-x86_64-make
             mingw-w64-x86_64-pkg-config
+            mingw-w64-x86_64-freetype
             make
 
+
       - name: Check environment
+        shell: msys2 {0}
         run: make check-env
 
-      # === 🆕 VERBOSE BUILD OUTPUT ===
+
+      # ===  VERBOSE BUILD OUTPUT ===
       - name: Run make with verbose output
         shell: msys2 {0}
         run: |
           export PATH="/mingw64/bin:$PATH"
           make VERBOSE=1
 
-      # === 🆕 INSPECT SFML INSTALL OUTPUT ===
+      # === INSPECT SFML INSTALL OUTPUT ===
       - name: Inspect SFML install output
         shell: msys2 {0}
         run: |
@@ -100,7 +103,7 @@ jobs:
           echo "=== SFML install/bin ==="
           ls -l external/SFML/install/bin || echo "No DLLs found"
 
-      # === 🆕 INSPECT BIN DIRECTORY ===
+      # ===  INSPECT BIN DIRECTORY ===
       - name: Inspect bin directory
         shell: msys2 {0}
         run: |
@@ -114,7 +117,7 @@ jobs:
           export PATH="/mingw64/bin:$PATH"
           make
 
-      # === 🆕 STAGE ARTIFACTS FOR UPLOAD ===
+      # === STAGE ARTIFACTS FOR UPLOAD ===
       - name: Stage build artifacts
         shell: msys2 {0}
         run: |

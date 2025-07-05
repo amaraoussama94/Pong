@@ -27,7 +27,11 @@ LDFLAGS = -L$(SFML_INSTALL_DIR)/lib -lsfml-graphics -lsfml-window -lsfml-system
 SOURCES = $(wildcard $(SRC_DIR)/*.cpp)
 # Maps each .cpp file to a corresponding .o file in build/
 OBJECTS = $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(SOURCES))
+#	CMake flags
+CMAKE_FLAGS += --no-warn-unused-cli
 
+
+# === OS DETECTION ===
 # === OS DETECTION ===
 UNAME_S := $(shell uname -s)
 
@@ -40,13 +44,10 @@ else ifeq ($(findstring MINGW,$(UNAME_S)),MINGW)
 	EXE = $(BIN_DIR)/$(PROJECT_NAME).exe
 	COPY_DLLS = if exist $(SFML_INSTALL_DIR)/bin/*.dll copy $(SFML_INSTALL_DIR)/bin\*.dll $(BIN_DIR)\ >nul
 	CMAKE_GENERATOR = -G "MinGW Makefiles"
-	CMAKE_ENV = -DCMAKE_MAKE_PROGRAM=mingw32-make
-
 else ifeq ($(findstring MSYS,$(UNAME_S)),MSYS)
 	EXE = $(BIN_DIR)/$(PROJECT_NAME).exe
 	COPY_DLLS = cp $(SFML_INSTALL_DIR)/bin/*.dll $(BIN_DIR) 2>/dev/null || true
 	CMAKE_GENERATOR = -G "Unix Makefiles"
-	CMAKE_ENV =
 else
 	$(error Unsupported platform: $(UNAME_S))
 endif
@@ -58,7 +59,7 @@ ifeq ($(findstring MINGW,$(UNAME_S)),MINGW)
 	CXX := $(shell which g++)
 	CC := $(shell which gcc)
 	MAKE_PROGRAM := $(shell which mingw32-make)
-	CMAKE_ENV = -DCMAKE_C_COMPILER=$(CC) -DCMAKE_CXX_COMPILER=$(CXX) -DCMAKE_MAKE_PROGRAM=$(MAKE_PROGRAM)
+	CMAKE_ENV = CMAKE_POLICY_VERSION_MINIMUM=3.5 CC=$(CC) CXX=$(CXX) CMAKE_MAKE_PROGRAM=$(MAKE_PROGRAM)
 endif
 
 # === ENVIRONMENT CHECK ===
@@ -74,7 +75,7 @@ check-env:
 # === TARGETS ===
 # The default target. It builds SFML first, then your game.
 # Updated to trigger SFML build based on the presence of either static or shared libraries.
-all: $(SFML_INSTALL_DIR)/lib/libsfml-graphics.a $(SFML_INSTALL_DIR)/bin/sfml-graphics-3.dll $(EXE)
+all: check-shell $(SFML_INSTALL_DIR)/lib/libsfml-graphics.a $(SFML_INSTALL_DIR)/bin/sfml-graphics-3.dll $(EXE)
 
 # === Build and Install SFML from Source ===
 # This rule ensures SFML is built and installed before compiling the game.
@@ -95,15 +96,26 @@ all: $(SFML_INSTALL_DIR)/lib/libsfml-graphics.a $(SFML_INSTALL_DIR)/bin/sfml-gra
 $(SFML_INSTALL_DIR)/lib/libsfml-graphics.a $(SFML_INSTALL_DIR)/bin/sfml-graphics-3.dll:
 	@echo "Building SFML in $(SFML_BUILD_DIR)..."
 	mkdir -p $(SFML_BUILD_DIR)
-	cd $(SFML_BUILD_DIR) && cmake .. $(CMAKE_GENERATOR) \
-		-DCMAKE_INSTALL_PREFIX=$(abspath $(SFML_INSTALL_DIR)) \
-		-DCMAKE_BUILD_TYPE=Release \
+	cd $(SFML_BUILD_DIR) && $(CMAKE_ENV) cmake .. $(CMAKE_GENERATOR) $(CMAKE_FLAGS) \
+		-DCMAKE_INSTALL_PREFIX="$(abspath $(SFML_INSTALL_DIR))" \
+ 	-DCMAKE_BUILD_TYPE=Release \
 		-DBUILD_SHARED_LIBS=TRUE \
-		$(CMAKE_ENV)
+		-DSFML_USE_SYSTEM_FREETYPE=TRUE \
+		$(CMAKE_FLAGS) 
 	$(MAKE) -C $(SFML_BUILD_DIR)
 	$(MAKE) -C $(SFML_BUILD_DIR) install
 	@echo "Contents of SFML install bin directory:"
 	@ls -l $(SFML_INSTALL_DIR)/bin || echo "No DLLs found"
+
+check-shell:
+ifeq ($(findstring MINGW,$(UNAME_S)),MINGW)
+	@if [ "$$MSYSTEM" != "MINGW64" ]; then \
+ 		echo "Please run this Makefile from the MSYS2 MinGW64 shell (not cmd.exe or PowerShell)"; \
+			exit 1; \
+	fi
+endif
+
+
 
 # Compiles each .cpp file into a .o object file
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
