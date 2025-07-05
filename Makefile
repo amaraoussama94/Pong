@@ -9,7 +9,8 @@ BIN_DIR = bin
 # SFML submodule and build paths
 SFML_DIR = external/SFML
 SFML_BUILD_DIR = $(SFML_DIR)/build
-SFML_INSTALL_DIR = $(SFML_DIR)external/SFML/install
+SFML_INSTALL_DIR = external/SFMLexternal/SFML/install
+#SFML_INSTALL_DIR = $(SFML_DIR)/install
 
 # Compiler configuration
 CXX = g++
@@ -44,7 +45,7 @@ ifeq ($(UNAME_S),Linux)
 	MAKE_PROGRAM := $(shell which make)
 else ifeq ($(findstring MINGW,$(UNAME_S)),MINGW)
 	EXE = $(BIN_DIR)/$(PROJECT_NAME).exe
-	COPY_DLLS = if exist $(SFML_INSTALL_DIR)/bin/*.dll copy $(SFML_INSTALL_DIR)/bin\*.dll $(BIN_DIR)\ >nul
+	COPY_DLLS = cp -u $(SFML_INSTALL_DIR)/bin/*.dll $(BIN_DIR) 2>/dev/null || true
 	CMAKE_GENERATOR = -G "MinGW Makefiles"
 else ifeq ($(findstring MSYS,$(UNAME_S)),MSYS)
 	EXE = $(BIN_DIR)/$(PROJECT_NAME).exe
@@ -130,6 +131,7 @@ $(EXE): $(OBJECTS)
 	$(CXX) $^ -o $@ $(LDFLAGS)
 	@echo "Executable built at: $(EXE)"
 	@ls -l $(EXE) || echo "Executable not found"
+	@echo "DLLS path: $(COPY_DLLS)"
 	$(COPY_DLLS)
 	@echo "Contents of bin directory after copying DLLs:"
 	@ls -l $(BIN_DIR)
