@@ -9,7 +9,8 @@ BIN_DIR = bin
 # SFML submodule and build paths
 SFML_DIR = external/SFML
 SFML_BUILD_DIR = $(SFML_DIR)/build
-SFML_INSTALL_DIR = external/SFMLexternal/SFML/install
+SFML_INSTALL_DIR = $(SFML_DIR)/install
+
 #SFML_INSTALL_DIR = $(SFML_DIR)/install
 
 # Compiler configuration
@@ -74,6 +75,14 @@ check-env:
 	@echo "CXX = $(CXX)"
 	@echo "CC = $(CC)"
 	@echo "PATH = $$PATH"
+
+
+# === DEBUG PATHS ===
+# This target checks if the SFML graphics library file exists in the expected location.	
+debug-paths:
+	@echo "SFML_GRAPHICS_LIB = $(SFML_GRAPHICS_LIB)"
+	@echo "Checking if file exists:"
+	@test -f $(SFML_GRAPHICS_LIB) && echo "Found" || echo "Missing"
 
 # === TARGETS ===
 # The default target. It builds SFML first, then your game.

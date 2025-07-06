@@ -50,7 +50,9 @@ jobs:
             libgl1-mesa-dev libudev-dev libopenal-dev libflac-dev libvorbis-dev libfreetype6-dev
 
       - name: Build project
-        run: make
+        run: |
+          make clean-all
+          make all
 
       - name: Upload binary
         uses: actions/upload-artifact@v4
@@ -92,11 +94,18 @@ jobs:
 
 
       # ===  VERBOSE BUILD OUTPUT ===
-      - name: Run make with verbose output
+          
+      - name: Debug SFML paths
+        shell: msys2 {0}
+        run: make debug-paths
+
+      - name: Build project
         shell: msys2 {0}
         run: |
           export PATH="/mingw64/bin:$PATH"
           make VERBOSE=1
+          make clean-all
+          make all
 
       # === INSPECT SFML INSTALL OUTPUT ===
       - name: Inspect SFML install output
@@ -114,12 +123,6 @@ jobs:
           echo "=== bin/ ==="
           ls -l bin || echo "bin/ not found"
           file bin/pong.exe || echo "pong.exe not found or not a valid file"
-
-      - name: Build project
-        shell: msys2 {0}
-        run: |
-          export PATH="/mingw64/bin:$PATH"
-          make VERBOSE=1
 
       # === STAGE ARTIFACTS FOR UPLOAD ===
       - name: Stage build artifacts
