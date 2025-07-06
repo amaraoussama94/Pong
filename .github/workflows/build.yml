@@ -1,12 +1,13 @@
-# === GitHub Actions Workflow: Cross-Platform Build for Pong ===
+# === GitHub Actions Workflow: Cross-Platform Build and Release for Pong ===
 # This workflow automates the build process for the Pong project on both Linux and Windows.
-# It is triggered on every push or pull request to the `main` branch.
+# It is triggered on every push or pull request to the `main` branch, and on tag pushes for releases.
 #
 #  What it does:
 # 1. Checks out the repository, including the SFML submodule.
 # 2. Installs all necessary system dependencies for building SFML and the Pong game.
 # 3. Builds the project using the Makefile (which also builds SFML from source).
 # 4. Uploads the resulting binaries (and DLLs on Windows) as downloadable artifacts.
+# 5. If triggered by a tag, creates a GitHub Release with the same name and includes the binaries.
 #
 #  Linux Job:
 # - Uses Ubuntu as the build environment.
@@ -22,20 +23,20 @@
 #
 # This setup ensures consistent, portable builds across platforms and simplifies distribution.
 
-
 name: Build Pong
 
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    tags:
+      - 'PONG_SFML-*_*'
+
 
 jobs:
   build-linux:
     runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request' || github.ref == 'refs/heads/main'
     steps:
-    #fetch-depth: 0 to ensure GitHub fetches the full history required for submodules:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
@@ -68,13 +69,13 @@ jobs:
 
   build-windows:
     runs-on: windows-latest
+    if: github.event_name != 'pull_request' || github.ref == 'refs/heads/main'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           submodules: recursive
-
 
       - name: Install MSYS2 and dependencies
         uses: msys2/setup-msys2@v2
@@ -87,14 +88,11 @@ jobs:
             mingw-w64-x86_64-freetype
             make
 
-
       - name: Check environment
         shell: msys2 {0}
         run: make check-env
 
-
       # ===  VERBOSE BUILD OUTPUT ===
-          
       - name: Debug SFML paths
         shell: msys2 {0}
         run: make debug-paths
@@ -145,3 +143,31 @@ jobs:
 
       - name: Clean all (including SFML)
         run: make clean-all
+
+  release:
+    name: Create GitHub Release
+    needs: [build-linux, build-windows]
+    if: startsWith(github.ref, 'refs/tags/PONG_SFML-')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download Linux artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: pong-linux
+          path: release-assets/
+
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: pong-windows
+          path: release-assets/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
+          files: release-assets/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
