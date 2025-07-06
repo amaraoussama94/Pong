@@ -2,6 +2,7 @@
 # whenever a push is made to the main branch. The tag format is PONG_SFML-<version>_<number>,
 # where <version> is the SFML version extracted from the submodule's CMakeLists.txt,
 # and <number> is an incrementing number for each tag with that version.  
+
 name: Auto Tag on Main Push
 
 on:
@@ -28,10 +29,19 @@ jobs:
         id: sfml
         run: |
           SFML_CMAKE="external/SFML/CMakeLists.txt"
-          VERSION=$(grep -Po '(?<=set\(SFML_VERSION_MAJOR )\d+' $SFML_CMAKE).\
-          $(grep -Po '(?<=set\(SFML_VERSION_MINOR )\d+' $SFML_CMAKE).\
-          $(grep -Po '(?<=set\(SFML_VERSION_PATCH )\d+' $SFML_CMAKE)
-          echo "Detected SFML version: $VERSION"
+          if [[ ! -f "$SFML_CMAKE" ]]; then
+            echo " SFML CMakeLists.txt not found at $SFML_CMAKE"
+            exit 1
+          fi
+
+          VERSION=$(grep -Po '(?<=project\(SFML VERSION )[^)]+(?=\))' "$SFML_CMAKE")
+
+          if [[ -z "$VERSION" ]]; then
+            echo " Failed to extract SFML version from $SFML_CMAKE"
+            exit 1
+          fi
+
+          echo " Detected SFML version: $VERSION"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       # === Generate next tag based on SFML version ===
@@ -49,7 +59,7 @@ jobs:
           fi
 
           NEW_TAG="${PREFIX}${NEXT_NUM}"
-          echo "New tag: $NEW_TAG"
+          echo "New tag to create: $NEW_TAG"
           echo "tag=$NEW_TAG" >> $GITHUB_OUTPUT
 
       # === Create and push the new tag ===
