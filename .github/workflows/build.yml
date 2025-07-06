@@ -170,11 +170,36 @@ jobs:
           git push origin "$NEW_TAG"
 
       # === Create GitHub Release with binaries ===
-      - name: Create GitHub Release
+      
+      - name: Prepare release folders
+        run: |
+          mkdir -p release/pong-linux
+          mkdir -p release/pong-windows
+
+          # Copy Linux binary
+          cp release-assets/pong release/pong-linux/
+
+          # Copy Windows binary and DLLs
+          cp release-assets/pong.exe release/pong-windows/ || echo "No EXE found"
+          cp release-assets/*.dll release/pong-windows/ || echo "No DLLs found"
+
+          # Copy fonts to both
+          cp -r fonts release/pong-linux/
+          cp -r fonts release/pong-windows/
+
+      - name: Create zip archives
+        run: |
+          TAG=${{ steps.tag.outputs.tag }}
+          cd release
+          zip -r "${TAG}-linux.zip" pong-linux
+          zip -r "${TAG}-windows.zip" pong-windows
+
+      - name: Upload zipped release assets
         uses: softprops/action-gh-release@v1
         with:
           name: ${{ steps.tag.outputs.tag }}
           tag_name: ${{ steps.tag.outputs.tag }}
-          files: release-assets/*
+          files: |
+            release/*.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
