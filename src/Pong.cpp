@@ -1,3 +1,11 @@
+/**
+ * @file Pong.cpp
+ * @brief Main entry point for the Pong game using SFML.
+ * Handles game loop, rendering, input management, and transitions between menu, single-player, and multiplayer modes.
+ * @author Oussama Amara
+ * @date 2025-07-27
+ */
+
 #include "Bat.hpp"
 #include "Ball.hpp"
 #include <SFML/Graphics.hpp>
