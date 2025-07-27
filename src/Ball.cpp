@@ -5,23 +5,23 @@
  * @author Oussama Amara
  * @date 2025-07-27
  */
+
 #include "Ball.hpp"
+#include "Logger.hpp"
 
 /**
  * @brief Constructs a ball at the specified position.
- * @param startX X-coordinate for the ball's initial position.
- * @param startY Y-coordinate for the ball's initial position.
  */
 Ball::Ball(float startX, float startY)
     : m_Position(startX, startY)
 {
     m_Shape.setSize(sf::Vector2f(10.f, 10.f));
     m_Shape.setPosition(m_Position);
+    Logger().info("Ball created at position (" + std::to_string(startX) + ", " + std::to_string(startY) + ")");
 }
 
 /**
  * @brief Retrieves the global bounding rectangle of the ball.
- * @return A FloatRect representing the ball's bounds in global coordinates.
  */
 sf::FloatRect Ball::getGlobalBounds() const {
     return m_Shape.getGlobalBounds();
@@ -29,7 +29,6 @@ sf::FloatRect Ball::getGlobalBounds() const {
 
 /**
  * @brief Retrieves the current position rectangle of the ball.
- * @return A FloatRect representing the ball's position and dimensions.
  */
 sf::FloatRect Ball::getPosition() const {
     return m_Shape.getGlobalBounds();
@@ -37,7 +36,6 @@ sf::FloatRect Ball::getPosition() const {
 
 /**
  * @brief Provides access to the ball's shape for rendering.
- * @return A const reference to the RectangleShape.
  */
 const sf::RectangleShape& Ball::getShape() const {
     return m_Shape;
@@ -45,50 +43,53 @@ const sf::RectangleShape& Ball::getShape() const {
 
 /**
  * @brief Returns the horizontal velocity of the ball.
- * @return The direction multiplier for movement along the X-axis.
  */
 float Ball::getXVelocity() const {
     return m_DirectionX;
 }
 
 /**
- * @brief Reverses the horizontal direction to simulate bouncing off side walls.
+ * @brief Reverses horizontal direction to simulate bounce off side walls.
  */
 void Ball::reboundSides() {
     m_DirectionX = -m_DirectionX;
+    Logger().info("Ball rebounded off side wall. DirectionX is now " + std::to_string(m_DirectionX));
 }
 
 /**
- * @brief Reverses the vertical direction to simulate bounce off top or paddle in single-player mode.
+ * @brief Reverses vertical direction when hitting bat or top edge.
  */
 void Ball::reboundBatOrTop() {
     m_DirectionY = -m_DirectionY;
+    Logger().info("Ball rebounded off bat or top. DirectionY is now " + std::to_string(m_DirectionY));
 }
 
 /**
- * @brief Resets position and reverses vertical direction when the ball hits the bottom wall.
+ * @brief Handles ball rebound on bottom hit — resets position.
  */
 void Ball::reboundBottom() {
     m_Position = {500.f, 100.f};
     m_DirectionY = -m_DirectionY;
     m_Shape.setPosition(m_Position);
+    Logger().info("Ball hit bottom. Position reset to (500, 100). DirectionY is now " + std::to_string(m_DirectionY));
 }
 
 /**
- * @brief Resets position and reverses direction for multiplayer-specific collision logic.
+ * @brief Multiplayer-specific rebound logic when hitting top edge or bat.
  */
 void Ball::reboundBatOrTopMultiplayer() {
     m_Position = {500.f, 100.f};
     m_DirectionY = -m_DirectionY;
     m_Shape.setPosition(m_Position);
+    Logger().info("Multiplayer: Ball rebounded off bat or top. Reset position to (500, 100). DirectionY is now " + std::to_string(m_DirectionY));
 }
 
 /**
- * @brief Updates ball position based on velocity and elapsed time.
- * @param dt Time elapsed since last frame.
+ * @brief Updates ball position based on velocity and delta time.
  */
 void Ball::update(sf::Time dt) {
     m_Position.x += m_DirectionX * m_Speed * dt.asSeconds();
     m_Position.y += m_DirectionY * m_Speed * dt.asSeconds();
     m_Shape.setPosition(m_Position);
+    Logger().info("Ball updated position to (" + std::to_string(m_Position.x) + ", " + std::to_string(m_Position.y) + ")");
 }
