@@ -56,6 +56,10 @@ else
 	$(error Unsupported platform: $(UNAME_S))
 endif
 
+# === UNIVERSAL FONT COPY ===
+# This copies all font files from your `fonts/` directory into `bin/` regardless of OS.
+COPY_FONTS = cp -r fonts/* $(BIN_DIR) 2>/dev/null || true
+
 # === COMPILER AND MAKE PROGRAMS ===
 # This section sets the C++ compiler, C compiler, and make program based on the detected OS.
 # It ensures the correct tools are used for building the project, especially on Windows with MinGW
@@ -148,6 +152,8 @@ $(EXE): $(OBJECTS)
 	@ls -l $(EXE) || echo "Executable not found"
 	@echo "DLLS path: $(COPY_DLLS)"
 	$(COPY_DLLS)
+	@echo "Copying fonts..."
+	$(COPY_FONTS)
 	@echo "Contents of bin directory after copying DLLs:"
 	@ls -l $(BIN_DIR)
 
