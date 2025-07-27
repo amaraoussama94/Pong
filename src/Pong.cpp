@@ -1,3 +1,11 @@
+/**
+ * @file Pong.cpp
+ * @brief Main entry point for the Pong game using SFML.
+ * Handles game loop, rendering, input management, and transitions between menu, single-player, and multiplayer modes.
+ * @author Oussama Amara
+ * @date 2025-07-27
+ */
+
 #include "Bat.hpp"
 #include "Ball.hpp"
 #include <SFML/Graphics.hpp>
@@ -6,12 +14,17 @@
 #include <cstdlib>
 #include <optional>
 #include <iostream>
+#include "Logger.hpp"
 
 int main() {
+    Logger log; // Initialize logger
+    log.info("Game starting...");
+
     // The game will always be in one of three states
     enum class State { MENU, SINGLEPLAYER, MULTIPLAYER };
     // Start with the MENU state
     State state = State::MENU;
+    log.info("Initial game state: MENU");
 
     // Create a video mode object based on desktop resolution
     sf::Vector2f resolution;
@@ -21,7 +34,7 @@ int main() {
     // Create and open a window for the game
     sf::RenderWindow window;
     window.create(sf::VideoMode({static_cast<unsigned int>(resolution.x), static_cast<unsigned int>(resolution.y)}), "Pong");
-
+    log.info("Render window created with resolution: " + std::to_string((int)resolution.x) + "x" + std::to_string((int)resolution.y));
     // Player 1
     int score_1 = 0;
     int lives_1 = 3;
@@ -33,15 +46,16 @@ int main() {
     // Create bats and ball
     Bat bat_1(resolution.x / 2, resolution.y - 80); // Player 1 at bottom
     Bat bat_2(resolution.x / 2, 20);               // Player 2 at top
-    Ball ball(resolution.x / 2, 0);
+    Ball ball(resolution.x / 2.f, 0.f,resolution);
 
     // HUD setup (SFML 3.0.0 compliant)
     sf::Font font;
     if (!font.openFromFile("fonts/DS-DIGI.TTF")) {
         std::cerr << "Failed to load font: DS-DIGI.TTF" << std::endl;
+        log.error("Failed to load font");
         return -1;
     }
-
+    log.info("Font loaded successfully");
     sf::Text hud_1(font, "Score: 0", 25);
     sf::Text hud_2(font, "Lives: 3", 25);
 
@@ -70,34 +84,44 @@ int main() {
         **********************************
         */
         while (auto event = window.pollEvent()) {
-            if (event->is<sf::Event::Closed>())
+            if (event->is<sf::Event::Closed>()){
+                log.info("Window close event triggered");
                 window.close();
+            }
 
     if (event->is<sf::Event::KeyPressed>()) {
         const auto* keyEvent = event->getIf<sf::Event::KeyPressed>();
         if (keyEvent) {
             auto key = keyEvent->scancode;
-
             if (state == State::MENU) {
-                if (key == sf::Keyboard::Scancode::Num1)
+                if (key == sf::Keyboard::Scancode::Num1){
                     state = State::SINGLEPLAYER; // change mode to single player
-                else if (key == sf::Keyboard::Scancode::Num2)
+                    log.info("Switched to SINGLEPLAYER mode");
+                }
+                else if (key == sf::Keyboard::Scancode::Num2){
                     state = State::MULTIPLAYER; // change mode to multiplayer
+                    log.info("Switched to MULTIPLAYER mode");
+                }
             }
 
-            if (key == sf::Keyboard::Scancode::M)
+            if (key == sf::Keyboard::Scancode::M){
                 state = State::MENU; // back to menu
+                log.info("Returned to MENU");
+            }
         }
 }
 
         }
 
         // Handle the player quitting
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape)) {
+            log.info("Escape pressed — exiting");
             window.close();
+        }
 
         /******* MENU STATE *******/
         if (state == State::MENU) {
+            log.info("Rendering menu");
             window.clear();
             window.draw(GameMode); // draw menu to the screen
             window.display();      // Required to display rendered content
@@ -110,6 +134,7 @@ int main() {
 
         /******* SINGLE PLAYER MODE *******/
         if (state == State::SINGLEPLAYER) {
+            log.info("Singleplayer tick");
             auto batBounds = bat_1.getGlobalBounds();
             auto batPos = batBounds.position;
             auto batSize = batBounds.size;
@@ -144,7 +169,11 @@ int main() {
             if (ballPos.y > window.getSize().y) {
                 ball.reboundBottom();
                 lives_1--;
+                log.info("Ball hit bottom wall — Player 1 lives left: " + std::to_string(lives_1));
                 if (lives_1 < 1) {
+                    log.info("Player 1 game over — returning to MENU");
+                    ball = Ball(resolution.x / 2.f, resolution.y / 2.f,resolution); // Reset to center
+                    Time_elapsed = 0; // Prevent immediate scoring
                     state = State::MENU;
                     score_1 = 0;
                     lives_1 = 3;
@@ -154,6 +183,7 @@ int main() {
             if (ballPos.y < 0) {
                 ball.reboundBatOrTop();
                 if (Time_elapsed > 1)
+                    log.info("Player 1 scored — Score: " + std::to_string(score_1));
                     score_1++;
             }
 
@@ -172,6 +202,7 @@ int main() {
 
         /******* MULTIPLAYER MODE *******/
         if (state == State::MULTIPLAYER) {
+            log.info("Multiplayer tick");
             auto bat1Bounds = bat_1.getGlobalBounds();
             auto bat1Pos = bat1Bounds.position;
             auto bat1Size = bat1Bounds.size;
@@ -227,10 +258,13 @@ int main() {
             auto ballSize = ballBounds.size;
 
             if (ballPos.y > window.getSize().y) {
+                log.info("Player 2 scored — Player 1 lives: " + std::to_string(lives_1));
                 ball.reboundBottom();
                 lives_1--;
                 score_2++;
                 if (lives_1 < 1) {
+                     ball = Ball(resolution.x / 2.f, resolution.y / 2.f,resolution); // Reset to center
+                    Time_elapsed = 0; // Prevent immediate scoring
                     state = State::MENU;
                     score_1 = score_2 = 0;
                     lives_1 = lives_2 = 3;
@@ -238,6 +272,7 @@ int main() {
             }
 
             if (ballPos.y < 0) {
+                log.info("Player 1 scored — Player 2 lives: " + std::to_string(lives_2));
                 ball.reboundBatOrTopMultiplayer();
                 score_1++;
                 lives_2--;
@@ -267,6 +302,6 @@ int main() {
         }
     }
 
-
+    log.info("Game shutdown");
     return 0;
 }
