@@ -46,7 +46,7 @@ int main() {
     // Create bats and ball
     Bat bat_1(resolution.x / 2, resolution.y - 80); // Player 1 at bottom
     Bat bat_2(resolution.x / 2, 20);               // Player 2 at top
-    Ball ball(resolution.x / 2, 0);
+    Ball ball(resolution.x / 2.f, 0.f,resolution);
 
     // HUD setup (SFML 3.0.0 compliant)
     sf::Font font;
@@ -172,6 +172,8 @@ int main() {
                 log.info("Ball hit bottom wall — Player 1 lives left: " + std::to_string(lives_1));
                 if (lives_1 < 1) {
                     log.info("Player 1 game over — returning to MENU");
+                    ball = Ball(resolution.x / 2.f, resolution.y / 2.f,resolution); // Reset to center
+                    Time_elapsed = 0; // Prevent immediate scoring
                     state = State::MENU;
                     score_1 = 0;
                     lives_1 = 3;
@@ -261,6 +263,8 @@ int main() {
                 lives_1--;
                 score_2++;
                 if (lives_1 < 1) {
+                     ball = Ball(resolution.x / 2.f, resolution.y / 2.f,resolution); // Reset to center
+                    Time_elapsed = 0; // Prevent immediate scoring
                     state = State::MENU;
                     score_1 = score_2 = 0;
                     lives_1 = lives_2 = 3;

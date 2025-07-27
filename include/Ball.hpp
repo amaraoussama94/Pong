@@ -17,6 +17,9 @@ private:
     /** @brief Current position of the ball in 2D space. */
     sf::Vector2f m_Position;
 
+    /** @brief Resolution of the game window, used for positioning and movement calculations. */
+    sf::Vector2f m_Resolution; 
+
     /** @brief Graphical shape used to render the ball (a rectangle). */
     sf::RectangleShape m_Shape;
 
@@ -29,13 +32,15 @@ private:
     /** @brief Vertical direction multiplier (-1.0 to 1.0). */
     float m_DirectionY = 0.2f;
 
+
 public:
     /**
      * @brief Constructor that initializes the ball at a given starting position.
      * @param startX Initial x-coordinate.
      * @param startY Initial y-coordinate.
+     * @param resolution Resolution of the game window, used for positioning and movement calculations.
      */
-    Ball(float startX, float startY);
+    Ball(float startX, float startY, sf::Vector2f resolution);
 
     /**
      * @brief Retrieves the current bounding rectangle of the ball.

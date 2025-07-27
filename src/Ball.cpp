@@ -12,13 +12,14 @@
 /**
  * @brief Constructs a ball at the specified position.
  */
-Ball::Ball(float startX, float startY)
-    : m_Position(startX, startY)
+Ball::Ball(float startX, float startY, sf::Vector2f resolution)
+    : m_Position(startX, startY), m_Resolution(resolution)
 {
     m_Shape.setSize(sf::Vector2f(10.f, 10.f));
     m_Shape.setPosition(m_Position);
     Logger().info("Ball created at position (" + std::to_string(startX) + ", " + std::to_string(startY) + ")");
 }
+
 
 /**
  * @brief Retrieves the global bounding rectangle of the ball.
@@ -68,20 +69,20 @@ void Ball::reboundBatOrTop() {
  * @brief Handles ball rebound on bottom hit — resets position.
  */
 void Ball::reboundBottom() {
-    m_Position = {500.f, 100.f};
+    m_Position = {m_Resolution.x / 2.f, m_Resolution.y / 2.f};
     m_DirectionY = -m_DirectionY;
     m_Shape.setPosition(m_Position);
-    Logger().info("Ball hit bottom. Position reset to (500, 100). DirectionY is now " + std::to_string(m_DirectionY));
+    Logger().info("Ball hit bottom. Position reset to (" + std::to_string(m_Position.x) + ", " + std::to_string(m_Position.y) + "). DirectionY is now " + std::to_string(m_DirectionY));
 }
 
 /**
  * @brief Multiplayer-specific rebound logic when hitting top edge or bat.
  */
 void Ball::reboundBatOrTopMultiplayer() {
-    m_Position = {500.f, 100.f};
+    m_Position = {m_Resolution.x / 2.f, m_Resolution.y / 2.f};
     m_DirectionY = -m_DirectionY;
     m_Shape.setPosition(m_Position);
-    Logger().info("Multiplayer: Ball rebounded off bat or top. Reset position to (500, 100). DirectionY is now " + std::to_string(m_DirectionY));
+    Logger().info("Multiplayer: Ball rebounded. Reset to (" + std::to_string(m_Position.x) + ", " + std::to_string(m_Position.y) + "). DirectionY is now " + std::to_string(m_DirectionY));
 }
 
 /**
